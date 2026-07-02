@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
-    <title>节奏边缘 · 休息增强</title>
+    <title>XrayPapa·节奏边缘</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <style>
         * {
             box-sizing: border-box;
@@ -12,12 +13,40 @@
             -webkit-tap-highlight-color: transparent;
         }
         :root {
+            --space-2: 2px;
+            --space-4: 4px;
+            --space-6: 6px;
+            --space-8: 8px;
+            --space-10: 10px;
+            --space-12: 12px;
+            --space-14: 14px;
+            --space-16: 16px;
+            --space-18: 18px;
+            --space-20: 20px;
+            --space-24: 24px;
+            --space-28: 28px;
+
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.08);
+            --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.15);
+
+            --text-xs: 0.6rem;
+            --text-sm: 0.7rem;
+            --text-base: 0.85rem;
+            --text-md: 0.95rem;
+            --text-lg: 1.2rem;
+            --text-xl: 1.6rem;
+            --text-2xl: 2.4rem;
+            --text-3xl: 4.2rem;
+            --text-4xl: 5.6rem;
+
             --bg: #F5F2ED;
             --surface: #FFFFFF;
             --surface-border: #E0DBD0;
             --text-primary: #0F172A;
             --text-secondary: #475569;
-            --text-muted: #94A3B8;
+            --text-muted: #8A8A9E;
             --primary: #7C3AED;
             --primary-light: #A78BFA;
             --primary-bg: rgba(124, 58, 237, 0.12);
@@ -26,32 +55,29 @@
             --rest: #0EA5E9;
             --rest-bg: rgba(14, 165, 233, 0.12);
             --success: #22C55E;
-            --shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.08);
-            --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.15);
+            --beat-color: rgba(124, 58, 237, 0.12);
+            --modal-overlay: rgba(0, 0, 0, 0.40);
+            --btn-radius: 6px;
             --radius: 20px;
             --radius-sm: 12px;
             --radius-full: 9999px;
             --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            --beat-color: rgba(124, 58, 237, 0.12);
-            --modal-overlay: rgba(0, 0, 0, 0.40);
-            --btn-radius: 6px;
         }
         [data-theme="dark"] {
             --bg: #0A0A0F;
             --surface: #14141C;
-            --surface-border: #2A2A3A;
+            --surface-border: #3A3A4A;
             --text-primary: #F0F0F5;
-            --text-secondary: #B0B0C0;
-            --text-muted: #6A6A7A;
+            --text-secondary: #C0C0D0;
+            --text-muted: #9A9AAE;
             --primary: #0088FF;
             --primary-light: #4DB8FF;
             --primary-bg: rgba(0, 136, 255, 0.20);
-            --edge: #F87171;
-            --edge-bg: rgba(248, 113, 113, 0.14);
-            --rest: #38BDF8;
-            --rest-bg: rgba(56, 189, 248, 0.15);
+            --edge: #FF6B6B;
+            --edge-bg: rgba(255, 107, 107, 0.14);
+            --rest: #22D3EE;
+            --rest-bg: rgba(34, 211, 238, 0.15);
             --success: #4ADE80;
             --shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
             --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.65);
@@ -74,7 +100,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 8px;
+            padding: var(--space-8);
             min-height: 100vh;
             min-height: 100dvh;
         }
@@ -92,8 +118,8 @@
             flex-direction: column;
             overflow: hidden;
             position: relative;
-            transition: border-color 0.3s ease, box-shadow 0.4s ease, background 0.15s ease;
-            padding: 10px 12px 6px 12px;
+            transition: border-color 0.4s ease, box-shadow 0.4s ease, background 0.3s ease;
+            padding: var(--space-10) var(--space-12) var(--space-6) var(--space-12);
             will-change: transform, box-shadow, border-color, background;
         }
         .app.edge-flash {
@@ -102,7 +128,7 @@
         }
         .app.resting-active {
             border-color: var(--rest) !important;
-            box-shadow: 0 0 50px rgba(14, 165, 233, 0.12);
+            box-shadow: 0 0 60px rgba(14, 165, 233, 0.18);
         }
         .app.immersive .app-header {
             opacity: 0;
@@ -124,7 +150,6 @@
             border: none;
             transition: opacity 0.35s ease, height 0.35s ease;
         }
-        .app.immersive .params-wrap,
         .app.immersive .footer-bar,
         .app.immersive .data-row {
             opacity: 0;
@@ -137,23 +162,28 @@
             transition: opacity 0.35s ease, height 0.35s ease;
         }
         .app.immersive .visual-merged {
-            padding: 12px 8px;
-            margin: 0 0 4px 0;
-            background: transparent;
-            border: none;
-            box-shadow: none;
+            padding: var(--space-10) var(--space-8);
+            margin: 0 0 var(--space-6) 0;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(2px);
+            box-shadow: var(--shadow-sm);
+        }
+        [data-theme="dark"] .app.immersive .visual-merged {
+            background: rgba(0, 0, 0, 0.15);
+            border-color: rgba(255, 255, 255, 0.04);
         }
         .app.immersive .bpm-big {
-            font-size: 5.6rem;
+            font-size: var(--text-4xl);
         }
         .app.immersive .control-bar {
-            padding: 4px 0 6px;
+            padding: var(--space-4) 0 var(--space-6);
         }
         .app.immersive .progress-wrap {
-            padding: 4px 0 4px;
+            padding: var(--space-4) 0 var(--space-4);
         }
         .app.immersive .bpm-hero {
-            padding: 8px 0 6px;
+            padding: var(--space-8) 0 var(--space-6);
             min-height: 110px;
         }
         .app.immersive .vis-circle {
@@ -172,7 +202,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 8px 0 14px 0;
+            padding: var(--space-8) 0 var(--space-14) 0;
             flex-shrink: 0;
             background: transparent;
             position: sticky;
@@ -180,20 +210,21 @@
             z-index: 2;
             min-height: 56px;
             border-bottom: 1px solid var(--surface-border);
-            margin-bottom: 6px;
+            margin-bottom: var(--space-6);
+            transition: border-color var(--transition);
         }
         .header-left {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: var(--space-10);
         }
         .logo-icon {
             font-size: 32px;
             line-height: 1;
-            filter: grayscale(1);
+            filter: grayscale(0.3);
         }
         .app-header .title {
-            font-size: 1.6rem;
+            font-size: var(--text-xl);
             font-weight: 700;
             color: var(--text-primary);
             letter-spacing: -0.5px;
@@ -202,12 +233,12 @@
         }
         .app-header .title small {
             font-weight: 500;
-            font-size: 0.65rem;
+            font-size: var(--text-xs);
             color: var(--text-muted);
             background: var(--primary-bg);
-            padding: 2px 12px;
-            border-radius: 14px;
-            margin-left: 6px;
+            padding: var(--space-2) var(--space-12);
+            border-radius: var(--radius-full);
+            margin-left: var(--space-6);
             letter-spacing: 0.4px;
             transition: all var(--transition);
             display: inline-block;
@@ -226,7 +257,7 @@
             user-select: none;
             touch-action: manipulation;
             flex-shrink: 0;
-            padding-top: 2px;
+            padding-top: var(--space-2);
         }
         .pull-rope {
             width: 2px;
@@ -264,7 +295,7 @@
             margin-top: -1px;
             flex-shrink: 0;
             position: relative;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            box-shadow: var(--shadow-sm);
         }
         .pull-ring .ring-inner {
             width: 8px;
@@ -284,7 +315,7 @@
         .light-pull.pulled .pull-ring {
             transform: translateY(20px) scale(0.92);
             border-color: var(--primary);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+            box-shadow: var(--shadow);
         }
         .light-pull.pulled .pull-ring .ring-inner {
             transform: scale(1.2);
@@ -297,7 +328,7 @@
             bottom: -18px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 0.5rem;
+            font-size: var(--text-xs);
             color: var(--text-muted);
             white-space: nowrap;
             opacity: 0;
@@ -314,28 +345,28 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 10px;
-            padding: 6px 0 10px 0;
+            gap: var(--space-10);
+            padding: var(--space-6) 0 var(--space-10) 0;
             flex-shrink: 0;
             border-bottom: 1px solid var(--surface-border);
-            margin-bottom: 6px;
+            margin-bottom: var(--space-6);
             transition: all var(--transition);
         }
         .mode-current-display {
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 0.8rem;
+            gap: var(--space-8);
+            font-size: var(--text-sm);
             font-weight: 500;
             color: var(--text-secondary);
         }
         .mode-current-display .mode-name {
             color: var(--primary);
             font-weight: 700;
-            font-size: 0.9rem;
+            font-size: var(--text-base);
             background: var(--primary-bg);
-            padding: 2px 16px;
-            border-radius: 14px;
+            padding: var(--space-2) var(--space-16);
+            border-radius: var(--radius-full);
             border: 1px solid var(--surface-border);
             transition: all var(--transition);
         }
@@ -345,33 +376,43 @@
             border-color: var(--rest);
         }
         .btn-mode-switch {
-            padding: 8px 20px;
+            padding: var(--space-8) var(--space-20);
             border-radius: var(--btn-radius);
             border: 1px solid var(--surface-border);
             background: var(--bg);
             color: var(--text-primary);
-            font-size: 0.75rem;
+            font-size: var(--text-sm);
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
             font-family: inherit;
             display: flex;
             align-items: center;
-            gap: 6px;
-            touch-action: manipulation;
+            gap: var(--space-6);
+            touch-action: none;
             user-select: none;
             min-height: 36px;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
+            box-shadow: var(--shadow-sm);
         }
         .btn-mode-switch:active {
             transform: scale(0.94);
+            transition-duration: 0.08s;
         }
         .btn-mode-switch:hover {
             background: var(--primary-bg);
             border-color: var(--primary);
         }
         .btn-mode-switch .icon {
-            font-size: 0.9rem;
+            font-size: var(--text-base);
+        }
+        @media (max-width:420px) {
+            .btn-mode-switch .label-text {
+                display: none;
+            }
+            .btn-mode-switch {
+                padding: var(--space-6) var(--space-12);
+                min-width: 40px;
+            }
         }
 
         /* ===== BPM Hero ===== */
@@ -380,18 +421,19 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 10px 0 6px 0;
+            padding: var(--space-10) 0 var(--space-6) 0;
             flex-shrink: 0;
             user-select: none;
             position: relative;
             background: var(--surface);
             border-radius: var(--radius-sm);
             border: 1px solid var(--surface-border);
-            margin-bottom: 8px;
+            margin-bottom: var(--space-8);
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
             min-height: 100px;
             will-change: transform, box-shadow, border-color;
             flex: 0 0 auto;
+            box-shadow: var(--shadow);
         }
         .bpm-hero .bpm-ring {
             position: absolute;
@@ -406,14 +448,24 @@
         }
         .bpm-hero .bpm-ring.warn {
             border-color: var(--edge);
-            box-shadow: 0 0 60px rgba(239, 68, 68, 0.08);
+            box-shadow: 0 0 60px rgba(239, 68, 68, 0.10);
         }
         .bpm-hero .bpm-ring.resting-ring {
             border-color: var(--rest);
-            box-shadow: 0 0 60px rgba(14, 165, 233, 0.10);
+            box-shadow: 0 0 70px rgba(14, 165, 233, 0.15);
+            animation: rest-glow 2s ease-in-out infinite;
+        }
+        @keyframes rest-glow {
+            0%,
+            100% {
+                box-shadow: 0 0 40px rgba(14, 165, 233, 0.10);
+            }
+            50% {
+                box-shadow: 0 0 80px rgba(14, 165, 233, 0.25);
+            }
         }
         .bpm-big {
-            font-size: 4.2rem;
+            font-size: var(--text-3xl);
             font-weight: 700;
             font-variant-numeric: tabular-nums;
             letter-spacing: -1px;
@@ -425,7 +477,7 @@
             display: flex;
             align-items: baseline;
             justify-content: center;
-            gap: 2px;
+            gap: var(--space-2);
             will-change: transform, text-shadow;
         }
         .bpm-big.warn {
@@ -435,16 +487,16 @@
             color: var(--rest);
         }
         .bpm-big .unit {
-            font-size: 0.95rem;
-            font-weight: 500;
+            font-size: var(--text-lg);
+            font-weight: 600;
             color: var(--text-secondary);
-            letter-spacing: 1.5px;
-            margin-left: 2px;
+            letter-spacing: 2px;
+            margin-left: var(--space-2);
             transition: color var(--transition);
         }
         .bpm-big .rest-icon {
-            font-size: 1.6rem;
-            margin-left: 6px;
+            font-size: var(--text-xl);
+            margin-left: var(--space-6);
             opacity: 0;
             transition: opacity 0.4s ease;
             line-height: 1;
@@ -456,7 +508,7 @@
             position: absolute;
             top: -8px;
             right: -32px;
-            font-size: 1.4rem;
+            font-size: var(--text-lg);
             font-weight: 600;
             opacity: 0;
             transition: opacity 0.25s ease, transform 0.25s ease;
@@ -468,7 +520,7 @@
             transform: scale(1);
         }
         .bpm-big .pre-sign.up {
-            color: #EF4444;
+            color: var(--edge);
         }
         .bpm-big .pre-sign.down {
             color: #3B82F6;
@@ -477,12 +529,12 @@
             color: var(--rest);
         }
         .bpm-mode-label {
-            font-size: 0.7rem;
+            font-size: var(--text-sm);
             font-weight: 500;
             color: var(--text-muted);
             letter-spacing: 1.2px;
             text-transform: uppercase;
-            margin-top: 2px;
+            margin-top: var(--space-2);
             position: relative;
             z-index: 1;
             transition: color var(--transition);
@@ -497,7 +549,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 5rem;
+            font-size: var(--text-2xl);
             font-weight: 700;
             color: var(--primary);
             z-index: 10;
@@ -511,15 +563,15 @@
             opacity: 1;
         }
 
-        /* 休息进度条（在BPM Hero内） */
+        /* 休息进度条 */
         .rest-progress-wrap {
             position: absolute;
-            bottom: 6px;
+            bottom: var(--space-6);
             left: 12%;
             right: 12%;
             height: 3px;
             background: var(--surface-border);
-            border-radius: 4px;
+            border-radius: var(--space-4);
             overflow: hidden;
             opacity: 0;
             transition: opacity 0.5s ease;
@@ -532,17 +584,17 @@
             height: 100%;
             width: 0%;
             background: linear-gradient(90deg, var(--rest), var(--primary-light));
-            border-radius: 4px;
+            border-radius: var(--space-4);
             transition: width 0.3s linear;
         }
 
         .status-badge {
             position: absolute;
-            top: 8px;
-            left: 12px;
+            top: var(--space-8);
+            left: var(--space-12);
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: var(--space-6);
             z-index: 5;
             opacity: 0.7;
             transition: opacity var(--transition);
@@ -563,11 +615,11 @@
         }
         .status-badge .dot.resting-dot {
             background: var(--rest);
-            box-shadow: 0 0 18px rgba(14, 165, 233, 0.35);
+            box-shadow: 0 0 24px rgba(14, 165, 233, 0.40);
             animation: pulse-dot 0.6s infinite;
         }
         .status-badge .label {
-            font-size: 0.6rem;
+            font-size: var(--text-xs);
             font-weight: 500;
             color: var(--text-secondary);
             letter-spacing: 0.5px;
@@ -593,14 +645,15 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 12px;
-            padding: 14px 12px;
+            gap: var(--space-12);
+            padding: var(--space-14) var(--space-12);
             background: var(--bg);
             border-radius: var(--radius-sm);
             border: 1px solid var(--surface-border);
             transition: all var(--transition);
             flex-shrink: 0;
-            margin-bottom: 6px;
+            margin-bottom: var(--space-6);
+            box-shadow: var(--shadow-sm);
         }
         .vis-circle {
             position: relative;
@@ -626,7 +679,7 @@
             width: 100%;
             height: 12px;
             background: var(--surface-border);
-            border-radius: 8px;
+            border-radius: var(--space-8);
             overflow: hidden;
             flex-shrink: 0;
             transition: background var(--transition);
@@ -637,8 +690,8 @@
             height: 100%;
             width: 0%;
             background: linear-gradient(90deg, var(--primary), var(--primary-light));
-            border-radius: 8px;
-            transition: none;
+            border-radius: var(--space-8);
+            transition: width 0.1s ease-out;
             will-change: width;
             box-shadow: 0 0 22px rgba(124, 58, 237, 0.18);
             position: relative;
@@ -680,27 +733,27 @@
             box-shadow: 0 0 45px rgba(77, 184, 255, 0.50);
         }
         [data-theme="dark"] .beat-progress-fill.resting-fill {
-            box-shadow: 0 0 22px rgba(56, 189, 248, 0.25);
+            box-shadow: 0 0 22px rgba(34, 211, 238, 0.25);
         }
         [data-theme="dark"] .beat-progress-fill.resting-fill::after {
-            box-shadow: 0 0 30px rgba(56, 189, 248, 0.35);
+            box-shadow: 0 0 30px rgba(34, 211, 238, 0.35);
         }
 
         /* ===== Progress Wrap ===== */
         .progress-wrap {
-            padding: 4px 0 6px 0;
+            padding: var(--space-4) 0 var(--space-6) 0;
             flex-shrink: 0;
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: var(--space-14);
             background: transparent;
-            margin-bottom: 4px;
+            margin-bottom: var(--space-4);
         }
         .progress-track {
             flex: 1;
             height: 8px;
             background: var(--surface-border);
-            border-radius: 8px;
+            border-radius: var(--space-8);
             overflow: hidden;
             position: relative;
             transition: background var(--transition);
@@ -709,7 +762,7 @@
         .progress-fill {
             height: 100%;
             width: 0%;
-            border-radius: 8px;
+            border-radius: var(--space-8);
             transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             background: linear-gradient(90deg, var(--primary), var(--primary-light));
             will-change: width;
@@ -724,7 +777,7 @@
             background: linear-gradient(90deg, var(--rest), var(--primary-light));
         }
         .progress-label {
-            font-size: 0.7rem;
+            font-size: var(--text-sm);
             font-weight: 600;
             color: var(--text-secondary);
             font-variant-numeric: tabular-nums;
@@ -739,59 +792,61 @@
 
         /* ===== Control Bar - 2x2 Grid ===== */
         .control-bar {
-            padding: 4px 0 4px 0;
+            padding: var(--space-4) 0 var(--space-4) 0;
             flex-shrink: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: var(--space-8);
             transition: all var(--transition);
             background: transparent;
-            margin-bottom: 2px;
+            margin-bottom: var(--space-2);
             flex: 1 1 auto;
             min-height: 110px;
         }
         .btn-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            gap: var(--space-10);
             width: 100%;
             max-width: 320px;
             margin: 0 auto;
         }
         .btn {
-            padding: 12px 16px;
+            padding: var(--space-12) var(--space-16);
             border-radius: var(--btn-radius);
             border: 1px solid var(--surface-border);
             font-weight: 600;
-            font-size: 0.85rem;
+            font-size: var(--text-base);
             cursor: pointer;
             transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
             font-family: inherit;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
-            touch-action: manipulation;
+            gap: var(--space-6);
+            touch-action: none;
             user-select: none;
             min-height: 50px;
             background: var(--surface);
             color: var(--text-primary);
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
+            box-shadow: var(--shadow-sm);
             will-change: transform, box-shadow;
             width: 100%;
             min-width: 0;
             flex: 1 1 auto;
+            -webkit-touch-callout: none;
         }
         .btn:active {
-            transform: scale(0.95);
+            transform: scale(0.96);
+            transition-duration: 0.08s;
         }
         .btn-start {
             background: var(--primary);
             border-color: var(--primary);
             color: #fff;
-            font-size: 0.9rem;
+            font-size: var(--text-md);
             box-shadow: 0 2px 24px rgba(124, 58, 237, 0.22);
         }
         [data-theme="dark"] .btn-start {
@@ -800,27 +855,30 @@
         .btn-start.running {
             background: var(--edge);
             border-color: var(--edge);
-            box-shadow: 0 2px 24px rgba(239, 68, 68, 0.22);
+            box-shadow: 0 0 32px rgba(239, 68, 68, 0.30);
+            font-weight: 700;
         }
         .btn-start:active {
-            transform: scale(0.95);
+            transform: scale(0.96);
+            transition-duration: 0.08s;
         }
         .btn-edge {
             background: var(--edge-bg);
             border-color: var(--surface-border);
             color: var(--edge);
-            font-size: 0.8rem;
+            font-size: var(--text-sm);
             font-weight: 600;
             transition: all 0.3s ease;
         }
         .btn-edge:active {
-            transform: scale(0.92);
+            transform: scale(0.96);
+            transition-duration: 0.08s;
             background: var(--edge-bg);
         }
         .btn-edge .edge-count {
             font-weight: 700;
-            margin-left: 4px;
-            font-size: 0.9rem;
+            margin-left: var(--space-4);
+            font-size: var(--text-base);
         }
         .btn-edge.flash {
             border-color: var(--edge);
@@ -834,37 +892,40 @@
             box-shadow: 0 0 30px rgba(14, 165, 233, 0.12);
         }
         .btn-params {
-            background: var(--bg);
-            color: var(--text-secondary);
-            border-color: var(--surface-border);
-            font-size: 0.8rem;
-        }
-        .btn-params:active {
-            transform: scale(0.92);
-        }
-        .btn-params.active {
-            border-color: var(--primary);
             background: var(--primary-bg);
             color: var(--primary);
+            border-color: var(--surface-border);
+            font-size: var(--text-sm);
+        }
+        .btn-params:active {
+            transform: scale(0.96);
+            transition-duration: 0.08s;
+        }
+        .btn-params .icon {
+            font-size: var(--text-base);
         }
         .btn-reset {
             background: var(--bg);
             color: var(--text-secondary);
             border-color: var(--surface-border);
-            font-size: 0.8rem;
+            font-size: var(--text-sm);
         }
         .btn-reset:active {
-            transform: scale(0.92);
+            transform: scale(0.96);
+            transition-duration: 0.08s;
+        }
+        .btn-reset .icon {
+            font-size: var(--text-base);
         }
 
         /* ===== Data Row ===== */
         .data-row {
             display: flex;
             justify-content: center;
-            gap: 20px;
-            padding: 6px 0 4px 0;
+            gap: var(--space-20);
+            padding: var(--space-6) 0 var(--space-4) 0;
             flex-shrink: 0;
-            font-size: 0.7rem;
+            font-size: var(--text-sm);
             color: var(--text-muted);
             letter-spacing: 0.3px;
             border-top: none;
@@ -876,14 +937,14 @@
         .data-row .data-item {
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: var(--space-4);
         }
         .data-row .data-item .data-val {
             color: var(--text-secondary);
             font-weight: 600;
             font-variant-numeric: tabular-nums;
             transition: color var(--transition);
-            font-size: 0.8rem;
+            font-size: var(--text-base);
         }
         .data-row .data-item .data-val.highlight {
             color: var(--primary);
@@ -904,7 +965,7 @@
             pointer-events: none;
             transition: opacity 0.3s ease;
             border-radius: var(--radius);
-            padding: 20px;
+            padding: var(--space-20);
         }
         .modal-overlay.open {
             opacity: 1;
@@ -913,7 +974,7 @@
         .modal-card {
             background: var(--surface);
             border-radius: var(--radius);
-            padding: 24px 20px 20px;
+            padding: var(--space-24) var(--space-20) var(--space-20);
             max-width: 360px;
             width: 100%;
             max-height: 80vh;
@@ -923,20 +984,35 @@
             transform: scale(0.92) translateY(12px);
             transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
             opacity: 0;
+            scrollbar-width: thin;
+            scrollbar-color: var(--surface-border) transparent;
+        }
+        .modal-card::-webkit-scrollbar {
+            width: 4px;
+        }
+        .modal-card::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .modal-card::-webkit-scrollbar-thumb {
+            background: var(--surface-border);
+            border-radius: var(--space-4);
+        }
+        .modal-card::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
         }
         .modal-overlay.open .modal-card {
             transform: scale(1) translateY(0);
             opacity: 1;
         }
         .modal-card .modal-title {
-            font-size: 1.1rem;
+            font-size: var(--text-lg);
             font-weight: 700;
             color: var(--text-primary);
-            margin-bottom: 16px;
+            margin-bottom: var(--space-16);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding-bottom: 10px;
+            padding-bottom: var(--space-10);
             border-bottom: 1px solid var(--surface-border);
         }
         .modal-card .modal-title .close-btn {
@@ -945,33 +1021,34 @@
             border-radius: 50%;
             width: 32px;
             height: 32px;
-            font-size: 1.0rem;
+            font-size: var(--text-base);
             cursor: pointer;
             color: var(--text-muted);
             transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
+            touch-action: none;
         }
         .modal-card .modal-title .close-btn:hover {
             background: var(--surface-border);
             color: var(--text-primary);
         }
         .modal-card .modal-body {
-            padding: 4px 0;
+            padding: var(--space-4) 0;
         }
 
         /* ===== 模式列表 ===== */
         .mode-list {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: var(--space-4);
         }
         .mode-list-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 12px 16px;
+            padding: var(--space-12) var(--space-16);
             border-radius: var(--radius-sm);
             border: 1px solid transparent;
             cursor: pointer;
@@ -979,7 +1056,8 @@
             background: var(--bg);
             color: var(--text-secondary);
             font-weight: 500;
-            font-size: 0.9rem;
+            font-size: var(--text-base);
+            touch-action: none;
         }
         .mode-list-item:hover {
             background: var(--primary-bg);
@@ -993,8 +1071,8 @@
             font-weight: 600;
         }
         .mode-list-item .mode-icon {
-            font-size: 1.2rem;
-            margin-right: 10px;
+            font-size: var(--text-lg);
+            margin-right: var(--space-10);
         }
         .mode-list-item .mode-label {
             flex: 1;
@@ -1013,16 +1091,16 @@
         .params-grid-modal {
             display: flex;
             flex-direction: column;
-            gap: 14px;
-            padding: 2px 0;
+            gap: var(--space-14);
+            padding: var(--space-2) 0;
         }
         .params-grid-modal .param-group {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: var(--space-4);
         }
         .params-grid-modal .param-group label {
-            font-size: 0.7rem;
+            font-size: var(--text-sm);
             font-weight: 600;
             color: var(--text-secondary);
             letter-spacing: 0.4px;
@@ -1033,14 +1111,14 @@
         .params-grid-modal .param-group .param-value {
             color: var(--primary);
             font-weight: 600;
-            font-size: 0.8rem;
+            font-size: var(--text-sm);
         }
         .params-grid-modal .param-group input[type="range"] {
             -webkit-appearance: none;
             appearance: none;
             width: 100%;
             height: 6px;
-            border-radius: 6px;
+            border-radius: var(--space-6);
             background: var(--surface-border);
             outline: none;
             padding: 0;
@@ -1069,18 +1147,18 @@
         .params-grid-modal .param-group .range-labels {
             display: flex;
             justify-content: space-between;
-            font-size: 0.5rem;
+            font-size: var(--text-xs);
             color: var(--text-muted);
         }
         .params-grid-modal .param-group input[type="number"],
         .params-grid-modal .param-group select {
             width: 100%;
-            padding: 6px 10px;
+            padding: var(--space-6) var(--space-10);
             border-radius: var(--btn-radius);
             border: 1px solid var(--surface-border);
             background: var(--surface);
             color: var(--text-primary);
-            font-size: 0.8rem;
+            font-size: var(--text-sm);
             font-family: inherit;
             outline: none;
             transition: all var(--transition);
@@ -1093,17 +1171,17 @@
         .params-grid-modal .param-group .bpm-list {
             display: flex;
             flex-wrap: wrap;
-            gap: 5px;
-            margin-top: 2px;
+            gap: var(--space-4);
+            margin-top: var(--space-2);
         }
         .params-grid-modal .param-group .bpm-tag {
             display: inline-flex;
             align-items: center;
-            gap: 4px;
+            gap: var(--space-4);
             background: var(--primary-bg);
-            padding: 3px 10px 3px 12px;
-            border-radius: 14px;
-            font-size: 0.7rem;
+            padding: var(--space-2) var(--space-10) var(--space-2) var(--space-12);
+            border-radius: var(--radius-full);
+            font-size: var(--text-sm);
             font-weight: 500;
             color: var(--primary);
             border: 1px solid rgba(124, 58, 237, 0.08);
@@ -1112,24 +1190,25 @@
         }
         .params-grid-modal .param-group .bpm-tag .del {
             cursor: pointer;
-            font-size: 0.7rem;
+            font-size: var(--text-sm);
             color: var(--text-muted);
             line-height: 1;
-            padding: 0 2px;
+            padding: 0 var(--space-2);
+            touch-action: none;
         }
         .params-grid-modal .param-group .bpm-tag .del:hover {
             color: var(--edge);
         }
         .params-grid-modal .param-group .add-bpm-row {
             display: flex;
-            gap: 5px;
-            margin-top: 3px;
+            gap: var(--space-4);
+            margin-top: var(--space-2);
         }
         .params-grid-modal .param-group .add-bpm-row input {
             flex: 1;
             min-width: 20px;
-            padding: 4px 8px;
-            font-size: 0.7rem;
+            padding: var(--space-4) var(--space-8);
+            font-size: var(--text-sm);
             border-radius: var(--btn-radius);
             border: 1px solid var(--surface-border);
             background: var(--surface);
@@ -1138,31 +1217,36 @@
             min-height: 34px;
         }
         .params-grid-modal .param-group .add-bpm-row .btn-sm {
-            padding: 4px 16px;
+            padding: var(--space-4) var(--space-16);
             border-radius: var(--btn-radius);
             border: none;
             background: var(--primary);
             color: #fff;
-            font-size: 0.7rem;
+            font-size: var(--text-sm);
             font-weight: 600;
             cursor: pointer;
             transition: all var(--transition);
             min-height: 34px;
+            touch-action: none;
+        }
+        .params-grid-modal .param-group .add-bpm-row .btn-sm:active {
+            transform: scale(0.94);
+            transition-duration: 0.08s;
         }
         .params-grid-modal .param-group .radio-group,
         .params-grid-modal .param-group .waveform-btns {
             display: flex;
-            gap: 5px;
+            gap: var(--space-4);
             flex-wrap: wrap;
         }
         .params-grid-modal .param-group .radio-opt,
         .params-grid-modal .param-group .wf-btn {
-            padding: 4px 14px;
+            padding: var(--space-4) var(--space-14);
             border-radius: var(--btn-radius);
             border: 1px solid var(--surface-border);
             background: var(--surface);
             color: var(--text-secondary);
-            font-size: 0.7rem;
+            font-size: var(--text-sm);
             font-weight: 500;
             cursor: pointer;
             font-family: inherit;
@@ -1170,6 +1254,12 @@
             min-height: 32px;
             display: flex;
             align-items: center;
+            touch-action: none;
+        }
+        .params-grid-modal .param-group .radio-opt:active,
+        .params-grid-modal .param-group .wf-btn:active {
+            transform: scale(0.94);
+            transition-duration: 0.08s;
         }
         .params-grid-modal .param-group .radio-opt.active,
         .params-grid-modal .param-group .wf-btn.active {
@@ -1180,26 +1270,28 @@
 
         .modal-actions {
             display: flex;
-            gap: 10px;
-            margin-top: 18px;
-            padding-top: 14px;
+            gap: var(--space-10);
+            margin-top: var(--space-18);
+            padding-top: var(--space-14);
             border-top: 1px solid var(--surface-border);
         }
         .modal-actions .btn-modal {
             flex: 1;
-            padding: 12px 18px;
+            padding: var(--space-12) var(--space-18);
             border-radius: var(--btn-radius);
             border: 1px solid var(--surface-border);
             font-weight: 600;
-            font-size: 0.85rem;
+            font-size: var(--text-base);
             cursor: pointer;
             transition: all 0.2s ease;
             font-family: inherit;
             background: var(--surface);
             color: var(--text-secondary);
+            touch-action: none;
         }
         .modal-actions .btn-modal:active {
-            transform: scale(0.95);
+            transform: scale(0.96);
+            transition-duration: 0.08s;
         }
         .modal-actions .btn-modal.primary {
             background: var(--primary);
@@ -1211,7 +1303,8 @@
             box-shadow: 0 2px 16px rgba(0, 136, 255, 0.30);
         }
         .modal-actions .btn-modal.primary:active {
-            transform: scale(0.95);
+            transform: scale(0.96);
+            transition-duration: 0.08s;
         }
 
         /* ===== Toast ===== */
@@ -1223,9 +1316,9 @@
             background: var(--surface);
             border: 1px solid var(--surface-border);
             border-radius: var(--radius-sm);
-            padding: 14px 28px;
+            padding: var(--space-14) var(--space-28);
             box-shadow: var(--shadow-xl);
-            font-size: 1.0rem;
+            font-size: var(--text-base);
             font-weight: 600;
             color: var(--text-primary);
             z-index: 200;
@@ -1248,29 +1341,29 @@
             pointer-events: none;
         }
         .toast-float .toast-icon {
-            margin-right: 8px;
+            margin-right: var(--space-8);
         }
         .toast-float .toast-sub {
-            font-size: 0.7rem;
+            font-size: var(--text-sm);
             font-weight: 400;
             color: var(--text-muted);
             display: block;
-            margin-top: 2px;
+            margin-top: var(--space-2);
         }
 
         /* ===== Footer ===== */
         .footer-bar {
             text-align: center;
-            font-size: 0.65rem;
+            font-size: var(--text-xs);
             color: var(--text-muted);
-            padding: 6px 0 2px 0;
+            padding: var(--space-6) 0 var(--space-2) 0;
             flex-shrink: 0;
             opacity: 0.55;
             letter-spacing: 0.5px;
             transition: all var(--transition);
             border-top: none;
             background: transparent;
-            margin-top: 0px;
+            margin-top: 0;
             min-height: 26px;
         }
         .footer-bar a {
@@ -1278,45 +1371,45 @@
             text-decoration: none;
         }
 
-        /* ===== Responsive ===== */
+        /* ===== Responsive (移除 .shortcut-hint 相关) ===== */
         @media (max-width:440px) {
             body {
-                padding: 6px;
+                padding: var(--space-6);
             }
             .app {
-                padding: 8px 10px 4px 10px;
-                border-radius: 16px;
+                padding: var(--space-8) var(--space-10) var(--space-4) var(--space-10);
+                border-radius: var(--space-16);
             }
             .app-header {
-                padding: 6px 0 12px 0;
+                padding: var(--space-6) 0 var(--space-12) 0;
                 min-height: 48px;
             }
             .logo-icon {
                 font-size: 28px;
             }
             .app-header .title {
-                font-size: 1.4rem;
+                font-size: var(--text-xl);
             }
             .app-header .title small {
-                font-size: 0.55rem;
-                padding: 1px 10px;
+                font-size: var(--text-xs);
+                padding: var(--space-2) var(--space-10);
             }
             .bpm-big {
-                font-size: 3.6rem;
+                font-size: var(--text-2xl);
             }
             .app.immersive .bpm-big {
-                font-size: 4.8rem;
+                font-size: var(--text-4xl);
             }
             .bpm-big .unit {
-                font-size: 0.85rem;
+                font-size: var(--text-md);
             }
             .bpm-big .pre-sign {
-                font-size: 1.2rem;
+                font-size: var(--text-base);
                 right: -28px;
                 top: -6px;
             }
             .bpm-big .rest-icon {
-                font-size: 1.3rem;
+                font-size: var(--text-lg);
             }
             .vis-circle {
                 max-width: 170px;
@@ -1325,56 +1418,56 @@
                 max-width: 220px;
             }
             .visual-merged {
-                padding: 12px 10px;
-                gap: 10px;
+                padding: var(--space-12) var(--space-10);
+                gap: var(--space-10);
             }
             .btn-grid {
                 max-width: 280px;
-                gap: 8px;
+                gap: var(--space-8);
             }
             .btn {
-                font-size: 0.75rem;
+                font-size: var(--text-sm);
                 min-height: 44px;
-                padding: 10px 14px;
+                padding: var(--space-10) var(--space-14);
             }
             .btn-start {
-                font-size: 0.8rem;
-                padding: 10px 16px;
+                font-size: var(--text-base);
+                padding: var(--space-10) var(--space-16);
                 min-height: 46px;
             }
             .btn-edge {
-                font-size: 0.7rem;
+                font-size: var(--text-sm);
                 min-height: 44px;
-                padding: 10px 14px;
+                padding: var(--space-10) var(--space-14);
             }
             .btn-params,
             .btn-reset {
-                font-size: 0.7rem;
+                font-size: var(--text-sm);
                 min-height: 44px;
-                padding: 10px 14px;
+                padding: var(--space-10) var(--space-14);
             }
             .data-row {
-                font-size: 0.6rem;
-                gap: 14px;
+                font-size: var(--text-xs);
+                gap: var(--space-14);
                 min-height: 26px;
             }
             .data-row .data-item .data-val {
-                font-size: 0.7rem;
+                font-size: var(--text-sm);
             }
             .progress-label {
-                font-size: 0.6rem;
+                font-size: var(--text-xs);
                 min-width: 40px;
             }
             .bpm-hero .countdown-overlay {
-                font-size: 4.2rem;
+                font-size: var(--text-2xl);
             }
             .bpm-hero {
-                padding: 8px 0 6px 0;
+                padding: var(--space-8) 0 var(--space-6) 0;
                 min-height: 90px;
             }
             .control-bar {
                 min-height: 100px;
-                padding: 4px 0 4px 0;
+                padding: var(--space-4) 0 var(--space-4) 0;
             }
             .light-pull {
                 width: 32px;
@@ -1406,7 +1499,7 @@
                 height: 8px;
             }
             .status-badge .label {
-                font-size: 0.5rem;
+                font-size: var(--text-xs);
             }
             .beat-progress-track {
                 height: 10px;
@@ -1415,38 +1508,38 @@
                 height: 6px;
             }
             .btn-mode-switch {
-                font-size: 0.65rem;
-                padding: 6px 16px;
+                font-size: var(--text-xs);
+                padding: var(--space-6) var(--space-16);
                 min-height: 32px;
             }
             .mode-current-display {
-                font-size: 0.7rem;
+                font-size: var(--text-sm);
             }
             .mode-current-display .mode-name {
-                font-size: 0.8rem;
-                padding: 1px 12px;
+                font-size: var(--text-base);
+                padding: var(--space-2) var(--space-12);
             }
             .modal-card {
-                padding: 18px 14px 16px;
+                padding: var(--space-18) var(--space-14) var(--space-16);
                 max-width: 320px;
             }
             .mode-list-item {
-                padding: 10px 12px;
-                font-size: 0.8rem;
+                padding: var(--space-10) var(--space-12);
+                font-size: var(--text-sm);
             }
             .toast-float {
-                font-size: 0.85rem;
-                padding: 12px 20px;
+                font-size: var(--text-base);
+                padding: var(--space-12) var(--space-20);
                 min-width: 130px;
             }
             .footer-bar {
-                font-size: 0.55rem;
-                padding: 4px 0 2px 0;
+                font-size: var(--text-xs);
+                padding: var(--space-4) 0 var(--space-2) 0;
                 min-height: 22px;
             }
             .mode-selector-row {
-                padding: 4px 0 8px 0;
-                margin-bottom: 4px;
+                padding: var(--space-4) 0 var(--space-8) 0;
+                margin-bottom: var(--space-4);
             }
             .beat-progress-fill::after {
                 width: 16px;
@@ -1454,16 +1547,16 @@
                 right: -5px;
             }
             .btn-edge .edge-count {
-                font-size: 0.8rem;
+                font-size: var(--text-base);
             }
             .app.immersive .bpm-hero {
                 min-height: 100px;
             }
             .app.immersive .visual-merged {
-                padding: 10px 6px;
+                padding: var(--space-10) var(--space-6);
             }
             .rest-progress-wrap {
-                bottom: 4px;
+                bottom: var(--space-4);
                 left: 8%;
                 right: 8%;
                 height: 2px;
@@ -1471,42 +1564,42 @@
         }
         @media (max-width:380px) {
             body {
-                padding: 4px;
+                padding: var(--space-4);
             }
             .app {
-                padding: 6px 6px 2px 6px;
-                border-radius: 12px;
+                padding: var(--space-6) var(--space-6) var(--space-2) var(--space-6);
+                border-radius: var(--space-12);
             }
             .app-header {
-                padding: 4px 0 8px 0;
+                padding: var(--space-4) 0 var(--space-8) 0;
                 min-height: 40px;
             }
             .logo-icon {
                 font-size: 22px;
             }
             .app-header .title {
-                font-size: 1.2rem;
+                font-size: var(--text-lg);
             }
             .app-header .title small {
-                font-size: 0.45rem;
-                padding: 0 8px;
+                font-size: var(--text-xs);
+                padding: 0 var(--space-8);
             }
             .bpm-big {
-                font-size: 3.0rem;
+                font-size: var(--text-2xl);
             }
             .app.immersive .bpm-big {
-                font-size: 4.0rem;
+                font-size: var(--text-3xl);
             }
             .bpm-big .unit {
-                font-size: 0.7rem;
+                font-size: var(--text-sm);
             }
             .bpm-big .pre-sign {
-                font-size: 1.0rem;
+                font-size: var(--text-base);
                 right: -24px;
                 top: -4px;
             }
             .bpm-big .rest-icon {
-                font-size: 1.1rem;
+                font-size: var(--text-base);
             }
             .vis-circle {
                 max-width: 140px;
@@ -1515,56 +1608,56 @@
                 max-width: 180px;
             }
             .visual-merged {
-                padding: 8px 6px;
-                gap: 8px;
+                padding: var(--space-8) var(--space-6);
+                gap: var(--space-8);
             }
             .btn-grid {
                 max-width: 240px;
-                gap: 6px;
+                gap: var(--space-6);
             }
             .btn {
-                font-size: 0.65rem;
+                font-size: var(--text-xs);
                 min-height: 38px;
-                padding: 8px 10px;
+                padding: var(--space-8) var(--space-10);
             }
             .btn-start {
-                font-size: 0.7rem;
-                padding: 8px 12px;
+                font-size: var(--text-sm);
+                padding: var(--space-8) var(--space-12);
                 min-height: 40px;
             }
             .btn-edge {
-                font-size: 0.6rem;
+                font-size: var(--text-xs);
                 min-height: 38px;
-                padding: 8px 10px;
+                padding: var(--space-8) var(--space-10);
             }
             .btn-params,
             .btn-reset {
-                font-size: 0.6rem;
+                font-size: var(--text-xs);
                 min-height: 38px;
-                padding: 8px 10px;
+                padding: var(--space-8) var(--space-10);
             }
             .data-row {
-                font-size: 0.5rem;
-                gap: 10px;
+                font-size: var(--text-xs);
+                gap: var(--space-10);
                 min-height: 22px;
             }
             .data-row .data-item .data-val {
-                font-size: 0.6rem;
+                font-size: var(--text-xs);
             }
             .progress-label {
-                font-size: 0.5rem;
+                font-size: var(--text-xs);
                 min-width: 34px;
             }
             .bpm-hero .countdown-overlay {
-                font-size: 3.6rem;
+                font-size: var(--text-2xl);
             }
             .bpm-hero {
-                padding: 6px 0 4px 0;
+                padding: var(--space-6) 0 var(--space-4) 0;
                 min-height: 76px;
             }
             .control-bar {
                 min-height: 80px;
-                padding: 2px 0 2px 0;
+                padding: var(--space-2) 0 var(--space-2) 0;
             }
             .light-pull {
                 width: 28px;
@@ -1593,7 +1686,7 @@
                 height: 7px;
             }
             .status-badge .label {
-                font-size: 0.45rem;
+                font-size: var(--text-xs);
             }
             .beat-progress-track {
                 height: 8px;
@@ -1602,38 +1695,38 @@
                 height: 5px;
             }
             .btn-mode-switch {
-                font-size: 0.55rem;
-                padding: 4px 12px;
+                font-size: var(--text-xs);
+                padding: var(--space-4) var(--space-12);
                 min-height: 28px;
             }
             .mode-current-display {
-                font-size: 0.6rem;
+                font-size: var(--text-xs);
             }
             .mode-current-display .mode-name {
-                font-size: 0.7rem;
-                padding: 0 10px;
+                font-size: var(--text-sm);
+                padding: 0 var(--space-10);
             }
             .modal-card {
-                padding: 14px 10px 10px;
+                padding: var(--space-14) var(--space-10) var(--space-10);
                 max-width: 280px;
             }
             .mode-list-item {
-                padding: 8px 10px;
-                font-size: 0.7rem;
+                padding: var(--space-8) var(--space-10);
+                font-size: var(--text-sm);
             }
             .toast-float {
-                font-size: 0.75rem;
-                padding: 10px 16px;
+                font-size: var(--text-sm);
+                padding: var(--space-10) var(--space-16);
                 min-width: 110px;
             }
             .footer-bar {
-                font-size: 0.5rem;
-                padding: 2px 0 2px 0;
+                font-size: var(--text-xs);
+                padding: var(--space-2) 0 var(--space-2) 0;
                 min-height: 18px;
             }
             .mode-selector-row {
-                padding: 2px 0 6px 0;
-                margin-bottom: 2px;
+                padding: var(--space-2) 0 var(--space-6) 0;
+                margin-bottom: var(--space-2);
             }
             .beat-progress-fill::after {
                 width: 14px;
@@ -1641,13 +1734,13 @@
                 right: -4px;
             }
             .btn-edge .edge-count {
-                font-size: 0.7rem;
+                font-size: var(--text-sm);
             }
             .app.immersive .bpm-hero {
                 min-height: 80px;
             }
             .rest-progress-wrap {
-                bottom: 3px;
+                bottom: var(--space-2);
                 left: 6%;
                 right: 6%;
                 height: 2px;
@@ -1655,24 +1748,24 @@
         }
         @media (max-height:740px) {
             .app-header {
-                padding: 4px 0 10px 0;
+                padding: var(--space-4) 0 var(--space-10) 0;
                 min-height: 44px;
             }
             .logo-icon {
                 font-size: 26px;
             }
             .app-header .title {
-                font-size: 1.3rem;
+                font-size: var(--text-lg);
             }
             .app-header .title small {
-                font-size: 0.5rem;
-                padding: 0 8px;
+                font-size: var(--text-xs);
+                padding: 0 var(--space-8);
             }
             .bpm-big {
-                font-size: 3.4rem;
+                font-size: var(--text-2xl);
             }
             .app.immersive .bpm-big {
-                font-size: 4.4rem;
+                font-size: var(--text-3xl);
             }
             .vis-circle {
                 max-width: 150px;
@@ -1681,53 +1774,53 @@
                 max-width: 200px;
             }
             .visual-merged {
-                padding: 10px 8px;
-                gap: 8px;
+                padding: var(--space-10) var(--space-8);
+                gap: var(--space-8);
             }
             .btn-grid {
                 max-width: 260px;
-                gap: 6px;
+                gap: var(--space-6);
             }
             .btn {
                 min-height: 40px;
-                padding: 8px 12px;
-                font-size: 0.7rem;
+                padding: var(--space-8) var(--space-12);
+                font-size: var(--text-sm);
             }
             .btn-start {
-                font-size: 0.75rem;
-                padding: 8px 14px;
+                font-size: var(--text-sm);
+                padding: var(--space-8) var(--space-14);
                 min-height: 42px;
             }
             .btn-edge {
-                font-size: 0.65rem;
+                font-size: var(--text-xs);
                 min-height: 40px;
-                padding: 8px 12px;
+                padding: var(--space-8) var(--space-12);
             }
             .btn-params,
             .btn-reset {
-                font-size: 0.65rem;
+                font-size: var(--text-xs);
                 min-height: 40px;
-                padding: 8px 12px;
+                padding: var(--space-8) var(--space-12);
             }
             .bpm-hero {
-                padding: 6px 0 4px 0;
+                padding: var(--space-6) 0 var(--space-4) 0;
                 min-height: 80px;
             }
             .control-bar {
                 min-height: 90px;
-                padding: 2px 0 4px 0;
+                padding: var(--space-2) 0 var(--space-4) 0;
             }
             .data-row {
-                font-size: 0.55rem;
-                gap: 12px;
-                padding: 4px 0 2px 0;
+                font-size: var(--text-xs);
+                gap: var(--space-12);
+                padding: var(--space-4) 0 var(--space-2) 0;
                 min-height: 22px;
             }
             .data-row .data-item .data-val {
-                font-size: 0.65rem;
+                font-size: var(--text-xs);
             }
             .progress-label {
-                font-size: 0.55rem;
+                font-size: var(--text-xs);
                 min-width: 36px;
             }
             .light-pull {
@@ -1763,36 +1856,36 @@
                 height: 6px;
             }
             .bpm-big .pre-sign {
-                font-size: 1.1rem;
+                font-size: var(--text-base);
                 right: -26px;
                 top: -5px;
             }
             .bpm-big .rest-icon {
-                font-size: 1.2rem;
+                font-size: var(--text-base);
             }
             .btn-mode-switch {
-                font-size: 0.6rem;
-                padding: 5px 14px;
+                font-size: var(--text-xs);
+                padding: var(--space-4) var(--space-14);
                 min-height: 30px;
             }
             .mode-current-display {
-                font-size: 0.65rem;
+                font-size: var(--text-xs);
             }
             .mode-current-display .mode-name {
-                font-size: 0.75rem;
-                padding: 1px 12px;
+                font-size: var(--text-sm);
+                padding: var(--space-2) var(--space-12);
             }
             .modal-card {
-                padding: 16px 14px 14px;
+                padding: var(--space-16) var(--space-14) var(--space-14);
             }
             .footer-bar {
-                font-size: 0.5rem;
-                padding: 4px 0 2px 0;
+                font-size: var(--text-xs);
+                padding: var(--space-4) 0 var(--space-2) 0;
                 min-height: 20px;
             }
             .mode-selector-row {
-                padding: 4px 0 6px 0;
-                margin-bottom: 4px;
+                padding: var(--space-4) 0 var(--space-6) 0;
+                margin-bottom: var(--space-4);
             }
             .beat-progress-fill::after {
                 width: 16px;
@@ -1803,10 +1896,10 @@
                 min-height: 90px;
             }
             .app.immersive .visual-merged {
-                padding: 8px 6px;
+                padding: var(--space-8) var(--space-6);
             }
             .rest-progress-wrap {
-                bottom: 4px;
+                bottom: var(--space-4);
                 left: 10%;
                 right: 10%;
                 height: 2px;
@@ -1814,24 +1907,24 @@
         }
         @media (max-height:640px) {
             .app-header {
-                padding: 2px 0 8px 0;
+                padding: var(--space-2) 0 var(--space-8) 0;
                 min-height: 36px;
             }
             .logo-icon {
                 font-size: 22px;
             }
             .app-header .title {
-                font-size: 1.1rem;
+                font-size: var(--text-base);
             }
             .app-header .title small {
-                font-size: 0.45rem;
-                padding: 0 6px;
+                font-size: var(--text-xs);
+                padding: 0 var(--space-6);
             }
             .bpm-big {
-                font-size: 2.8rem;
+                font-size: var(--text-2xl);
             }
             .app.immersive .bpm-big {
-                font-size: 3.6rem;
+                font-size: var(--text-2xl);
             }
             .vis-circle {
                 max-width: 120px;
@@ -1840,53 +1933,53 @@
                 max-width: 160px;
             }
             .visual-merged {
-                padding: 6px 6px;
-                gap: 6px;
+                padding: var(--space-6) var(--space-6);
+                gap: var(--space-6);
             }
             .btn-grid {
                 max-width: 220px;
-                gap: 5px;
+                gap: var(--space-4);
             }
             .btn {
                 min-height: 34px;
-                padding: 6px 10px;
-                font-size: 0.6rem;
+                padding: var(--space-6) var(--space-10);
+                font-size: var(--text-xs);
             }
             .btn-start {
-                font-size: 0.65rem;
-                padding: 6px 10px;
+                font-size: var(--text-xs);
+                padding: var(--space-6) var(--space-10);
                 min-height: 36px;
             }
             .btn-edge {
-                font-size: 0.55rem;
+                font-size: var(--text-xs);
                 min-height: 34px;
-                padding: 6px 10px;
+                padding: var(--space-6) var(--space-10);
             }
             .btn-params,
             .btn-reset {
-                font-size: 0.55rem;
+                font-size: var(--text-xs);
                 min-height: 34px;
-                padding: 6px 10px;
+                padding: var(--space-6) var(--space-10);
             }
             .bpm-hero {
-                padding: 4px 0 2px 0;
+                padding: var(--space-4) 0 var(--space-2) 0;
                 min-height: 64px;
             }
             .control-bar {
                 min-height: 72px;
-                padding: 0px 0 2px 0;
+                padding: 0 0 var(--space-2) 0;
             }
             .data-row {
-                font-size: 0.45rem;
-                gap: 8px;
-                padding: 2px 0 0px 0;
+                font-size: var(--text-xs);
+                gap: var(--space-8);
+                padding: var(--space-2) 0 0 0;
                 min-height: 18px;
             }
             .data-row .data-item .data-val {
-                font-size: 0.55rem;
+                font-size: var(--text-xs);
             }
             .progress-label {
-                font-size: 0.45rem;
+                font-size: var(--text-xs);
                 min-width: 30px;
             }
             .light-pull {
@@ -1916,7 +2009,7 @@
                 height: 6px;
             }
             .status-badge .label {
-                font-size: 0.4rem;
+                font-size: var(--text-xs);
             }
             .beat-progress-track {
                 height: 8px;
@@ -1925,46 +2018,46 @@
                 height: 4px;
             }
             .bpm-big .pre-sign {
-                font-size: 0.9rem;
+                font-size: var(--text-base);
                 right: -20px;
                 top: -3px;
             }
             .bpm-big .rest-icon {
-                font-size: 1.0rem;
+                font-size: var(--text-base);
             }
             .btn-mode-switch {
-                font-size: 0.5rem;
-                padding: 4px 10px;
+                font-size: var(--text-xs);
+                padding: var(--space-4) var(--space-10);
                 min-height: 24px;
             }
             .mode-current-display {
-                font-size: 0.55rem;
+                font-size: var(--text-xs);
             }
             .mode-current-display .mode-name {
-                font-size: 0.65rem;
-                padding: 0 8px;
+                font-size: var(--text-xs);
+                padding: 0 var(--space-8);
             }
             .modal-card {
-                padding: 12px 10px 10px;
+                padding: var(--space-12) var(--space-10) var(--space-10);
                 max-width: 260px;
             }
             .mode-list-item {
-                padding: 6px 10px;
-                font-size: 0.65rem;
+                padding: var(--space-6) var(--space-10);
+                font-size: var(--text-xs);
             }
             .toast-float {
-                font-size: 0.65rem;
-                padding: 8px 14px;
+                font-size: var(--text-xs);
+                padding: var(--space-8) var(--space-14);
                 min-width: 100px;
             }
             .footer-bar {
-                font-size: 0.45rem;
-                padding: 2px 0 2px 0;
+                font-size: var(--text-xs);
+                padding: var(--space-2) 0 var(--space-2) 0;
                 min-height: 16px;
             }
             .mode-selector-row {
-                padding: 2px 0 4px 0;
-                margin-bottom: 2px;
+                padding: var(--space-2) 0 var(--space-4) 0;
+                margin-bottom: var(--space-2);
             }
             .beat-progress-fill::after {
                 width: 14px;
@@ -1972,16 +2065,16 @@
                 right: -4px;
             }
             .btn-edge .edge-count {
-                font-size: 0.6rem;
+                font-size: var(--text-xs);
             }
             .app.immersive .bpm-hero {
                 min-height: 72px;
             }
             .app.immersive .visual-merged {
-                padding: 4px 4px;
+                padding: var(--space-4) var(--space-4);
             }
             .rest-progress-wrap {
-                bottom: 2px;
+                bottom: var(--space-2);
                 left: 8%;
                 right: 8%;
                 height: 2px;
@@ -1989,20 +2082,6 @@
         }
         .hidden {
             display: none !important;
-        }
-
-        .modal-card::-webkit-scrollbar {
-            width: 4px;
-        }
-        .modal-card::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .modal-card::-webkit-scrollbar-thumb {
-            background: var(--surface-border);
-            border-radius: 4px;
-        }
-        .modal-card::-webkit-scrollbar-thumb:hover {
-            background: var(--text-muted);
         }
     </style>
 </head>
@@ -2040,7 +2119,8 @@
                 <span class="mode-name" id="currentModeDisplay">固定</span>
             </div>
             <button class="btn-mode-switch" id="btnModeSwitch">
-                <span class="icon">🔄</span> 切换节奏模式
+                <span class="icon">🔄</span>
+                <span class="label-text">切换节奏模式</span>
             </button>
         </div>
 
@@ -2085,10 +2165,12 @@
             <div class="btn-grid">
                 <button class="btn btn-start" id="btnStart">▶ 开始</button>
                 <button class="btn btn-edge" id="btnEdge">🔴 边缘 <span class="edge-count" id="edgeCount">0</span></button>
-                <button class="btn btn-params" id="btnParams" title="高级参数">⚙ 参数</button>
-                <button class="btn btn-reset" id="btnReset">↺ 重置</button>
+                <button class="btn btn-params" id="btnParams"><span class="icon">⚙</span> 参数</button>
+                <button class="btn btn-reset" id="btnReset"><span class="icon">↺</span> 重置</button>
             </div>
         </div>
+
+        <!-- 快捷键提示已移除（移动端为主） -->
 
         <div class="data-row" id="dataRow">
             <span class="data-item">边缘 <span class="data-val highlight" id="dataEdge">0</span></span>
@@ -2208,22 +2290,59 @@
             let currentTheme = 'light';
             let isPulling = false;
 
-            function playClickSound() {
+            // 音频上下文（全局单例）
+            let _audioCtx = null;
+
+            function ensureAudio() {
+                if (!_audioCtx) {
+                    try {
+                        _audioCtx = new(window.AudioContext || window.webkitAudioContext)();
+                    } catch (_) { return null; }
+                }
+                if (_audioCtx && _audioCtx.state === 'suspended') {
+                    try { _audioCtx.resume(); } catch (_) {}
+                }
+                return _audioCtx;
+            }
+
+            function playTick(freq = 880, vol = 0.10, dur = 0.035) {
                 try {
-                    const ctx = new(window.AudioContext || window.webkitAudioContext)();
-                    if (ctx.state === 'suspended') ctx.resume();
+                    const ctx = ensureAudio();
+                    if (!ctx) return;
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.type = 'sine';
+                    const clampedFreq = Math.max(80, Math.min(1600, freq));
+                    osc.frequency.value = clampedFreq;
+                    gain.gain.setValueAtTime(Math.min(vol, 0.25), ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + Math.min(dur, 0.12));
+                    osc.start(ctx.currentTime);
+                    osc.stop(ctx.currentTime + Math.min(dur, 0.12));
+                } catch (_) {}
+            }
+
+            function playClick() {
+                try {
+                    const ctx = ensureAudio();
+                    if (!ctx) return;
                     const osc = ctx.createOscillator();
                     const gain = ctx.createGain();
                     osc.connect(gain);
                     gain.connect(ctx.destination);
                     osc.type = 'square';
-                    osc.frequency.setValueAtTime(1200, ctx.currentTime);
-                    osc.frequency.exponentialRampToValueAtTime(600, ctx.currentTime + 0.035);
-                    gain.gain.setValueAtTime(0.06, ctx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.045);
+                    osc.frequency.setValueAtTime(600, ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.04);
+                    gain.gain.setValueAtTime(0.05, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
                     osc.start(ctx.currentTime);
-                    osc.stop(ctx.currentTime + 0.045);
+                    osc.stop(ctx.currentTime + 0.05);
                 } catch (_) {}
+            }
+
+            function playClickSound() {
+                playClick();
             }
 
             function setTheme(theme) {
@@ -2283,14 +2402,14 @@
 
             function getEdge(alpha = 1) {
                 const isDark = currentTheme === 'dark';
-                const r = isDark ? 248 : 239,
-                    g = isDark ? 113 : 68,
-                    b = isDark ? 113 : 68;
+                const r = isDark ? 255 : 239,
+                    g = isDark ? 107 : 68,
+                    b = isDark ? 107 : 68;
                 return `rgba(${r},${g},${b},${alpha})`;
             }
 
             function getRest(alpha = 1) {
-                if (currentTheme === 'dark') return `rgba(56, 189, 248, ${alpha})`;
+                if (currentTheme === 'dark') return `rgba(34, 211, 238, ${alpha})`;
                 return `rgba(14, 165, 233, ${alpha})`;
             }
 
@@ -2298,57 +2417,15 @@
                 return `rgba(255, 255, 255, ${alpha})`;
             }
 
-            function getCoreColor(alpha = 1) {
-                if (currentTheme === 'dark') return `rgba(220, 240, 255, ${alpha})`;
-                return `rgba(255, 255, 255, ${alpha})`;
-            }
-
             // =========================================================================
-            //  四、音频引擎
+            //  五、Living Rhythm Engine — 核心 (跳变修复版)
             // =========================================================================
-            let audioCtx = null;
 
-            function ensureAudio() {
-                if (!audioCtx) audioCtx = new(window.AudioContext || window.webkitAudioContext)();
-                if (audioCtx.state === 'suspended') audioCtx.resume();
-                return audioCtx;
-            }
-
-            function playTick(freq = 880, vol = 0.10, dur = 0.035) {
-                try {
-                    const ctx = ensureAudio();
-                    const osc = ctx.createOscillator();
-                    const gain = ctx.createGain();
-                    osc.connect(gain);
-                    gain.connect(ctx.destination);
-                    osc.type = 'sine';
-                    osc.frequency.value = freq;
-                    gain.gain.setValueAtTime(vol, ctx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
-                    osc.start(ctx.currentTime);
-                    osc.stop(ctx.currentTime + dur);
-                } catch (_) {}
-            }
-
-            function playClick() {
-                try {
-                    const ctx = ensureAudio();
-                    const osc = ctx.createOscillator();
-                    const gain = ctx.createGain();
-                    osc.connect(gain);
-                    gain.connect(ctx.destination);
-                    osc.type = 'square';
-                    osc.frequency.value = 600;
-                    gain.gain.setValueAtTime(0.05, ctx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
-                    osc.start(ctx.currentTime);
-                    osc.stop(ctx.currentTime + 0.05);
-                } catch (_) {}
-            }
-
-            // =========================================================================
-            //  五、Living Rhythm Engine — 核心 (增强版)
-            // =========================================================================
+            // 休息时长常量
+            const REST_DOWN = 5000;
+            const REST_HOLD = 15000;
+            const REST_UP = 5000;
+            const REST_TOTAL = REST_DOWN + REST_HOLD + REST_UP;
 
             const LRE = {
                 now: 0,
@@ -2374,18 +2451,26 @@
                 bpmCount: 0,
                 // ---- 休息状态 ----
                 resting: false,
-                restPhase: null, // 'down' | 'hold' | 'up'
+                restPhase: null,
                 restStartTime: 0,
                 restOriginalBpm: 120,
                 restCurrentBpm: 120,
-                restDownDuration: 5000, // 5秒下降
-                restHoldDuration: 15000, // 15秒保持0
-                restUpDuration: 5000, // 5秒上升
-                restTotalDuration: 25000, // 25秒总休息
-                restProgress: 0, // 0-1
+                restDownDuration: REST_DOWN,
+                restHoldDuration: REST_HOLD,
+                restUpDuration: REST_UP,
+                restTotalDuration: REST_TOTAL,
+                restProgress: 0,
                 restPhaseStartTime: 0,
                 restPhaseProgress: 0,
                 restTriggeredAt: 0,
+                // ---- 跳变锁 ----
+                _jumpLock: false,
+                _jumpBpm: 0,
+                _jumpTarget: 0,
+                _lastJumpTime: 0,
+                // ---- 倒计时 ----
+                _countdownTimer: null,
+                _countdownInterval: null,
                 // ---- 脉冲层 ----
                 pulses: [
                     { scale: 1, alpha: 0, blur: 0, progress: 0, active: false, startTime: 0, duration: 70,
@@ -2419,6 +2504,10 @@
                     _bpmScaleBoost: 0,
                     _bpmGlowBoost: 0,
                     _headBoost: 0,
+                    // BPM 数字动画
+                    _bpmDisplay: 120,
+                    _bpmDisplayTarget: 120,
+                    _bpmDisplayVelocity: 0,
                 },
                 params: {},
                 strategyState: {},
@@ -2430,6 +2519,7 @@
                 rafId: null,
                 animRunning: false,
                 _lastUpdate: 0,
+                _lastScheduledBpm: 0,
                 core: {
                     radius: 0,
                     alpha: 0,
@@ -2439,7 +2529,7 @@
             };
 
             // =========================================================================
-            //  六、模式策略 (保持不变)
+            //  六、模式策略
             // =========================================================================
             const MODES = {
                 FIXED: 'fixed',
@@ -2536,14 +2626,14 @@
                             { id: 'safeBpm', label: '安全 BPM', type: 'range', min: 30, max: 200, step: 1,
                                 default: 90 },
                             { id: 'huntBpm', label: '追猎 BPM', type: 'range', min: 80, max: 250, step: 1,
-                                default: 170 },
-                            { id: 'minGap', label: '追猎间隔 (秒)', type: 'number', min: 5, max: 60, step: 1,
+                                default: 200 },
+                            { id: 'minGap', label: '追猎最小间隔 (秒)', type: 'number', min: 5, max: 60, step: 1,
                                 default: 15 },
-                            { id: 'maxGap', label: '追猎间隔 (秒)', type: 'number', min: 5, max: 60, step: 1,
+                            { id: 'maxGap', label: '追猎最大间隔 (秒)', type: 'number', min: 5, max: 60, step: 1,
                                 default: 45 },
-                            { id: 'minHunt', label: '追猎时长 (秒)', type: 'number', min: 3, max: 30, step: 0.5,
+                            { id: 'minHunt', label: '追猎最小持续时长 (秒)', type: 'number', min: 3, max: 30, step: 0.5,
                                 default: 8 },
-                            { id: 'maxHunt', label: '追猎时长 (秒)', type: 'number', min: 3, max: 30, step: 0.5,
+                            { id: 'maxHunt', label: '追猎最大持续时长 (秒)', type: 'number', min: 3, max: 30, step: 0.5,
                                 default: 15 },
                             { id: 'transition', label: '变奏方式', type: 'radio', options: ['渐变', '跳变'],
                                 default: '跳变' },
@@ -2554,13 +2644,18 @@
                 }
             }
 
-            // ----- 策略类 (保持不变) -----
+            // ----- 策略类 -----
             class ModeStrategy {
                 constructor() { this.name = 'base'; }
                 init(s) { return s; }
                 update(s, now) { return s; }
                 getLabel() { return '基础'; }
                 getDuration(s) { return 300; }
+                _markJump(s, bpm, target) {
+                    s._jumpLock = true;
+                    s._jumpBpm = bpm;
+                    s._jumpTarget = target;
+                }
             }
 
             class FixedMode extends ModeStrategy {
@@ -2608,16 +2703,21 @@
                         st.startTime = now;
                         st.startBpm = s.bpm;
                         st.targetBpm = nextTarget;
-                        if (trans === '跳变') { s.bpm = nextTarget;
-                            s.targetBpm = nextTarget; }
+                        if (trans === '跳变') {
+                            s.bpm = nextTarget;
+                            s.targetBpm = nextTarget;
+                            this._markJump(s, nextTarget, nextTarget);
+                        }
                     } else {
                         if (trans === '渐变') {
                             const p = Math.min(elapsed / interval, 1);
                             const ease = 1 - Math.pow(1 - p, 2);
                             s.bpm = st.startBpm + (st.targetBpm - st.startBpm) * ease;
                             s.targetBpm = st.targetBpm;
-                        } else { s.bpm = st.startBpm;
-                            s.targetBpm = st.targetBpm; }
+                        } else {
+                            s.bpm = st.targetBpm;
+                            s.targetBpm = st.targetBpm;
+                        }
                     }
                     return s;
                 }
@@ -2654,16 +2754,21 @@
                         st.startTime = now;
                         st.startBpm = s.bpm;
                         st.targetBpm = Math.max(end, newBpm);
-                        if (trans === '跳变') { s.bpm = newBpm;
-                            s.targetBpm = newBpm; }
+                        if (trans === '跳变') {
+                            s.bpm = newBpm;
+                            s.targetBpm = newBpm;
+                            this._markJump(s, newBpm, newBpm);
+                        }
                     } else {
                         if (trans === '渐变') {
                             const p = Math.min(elapsed / interval, 1);
                             const ease = 1 - Math.pow(1 - p, 2);
                             s.bpm = st.startBpm + (st.targetBpm - st.startBpm) * ease;
                             s.targetBpm = st.targetBpm;
-                        } else { s.bpm = st.startBpm;
-                            s.targetBpm = st.targetBpm; }
+                        } else {
+                            s.bpm = st.targetBpm;
+                            s.targetBpm = st.targetBpm;
+                        }
                     }
                     return s;
                 }
@@ -2706,16 +2811,21 @@
                         st.startTime = now;
                         st.startBpm = s.bpm;
                         st.targetBpm = Math.min(end, newBpm);
-                        if (trans === '跳变') { s.bpm = newBpm;
-                            s.targetBpm = newBpm; }
+                        if (trans === '跳变') {
+                            s.bpm = newBpm;
+                            s.targetBpm = newBpm;
+                            this._markJump(s, newBpm, newBpm);
+                        }
                     } else {
                         if (trans === '渐变') {
                             const p = Math.min(elapsed / interval, 1);
                             const ease = 1 - Math.pow(1 - p, 2);
                             s.bpm = st.startBpm + (st.targetBpm - st.startBpm) * ease;
                             s.targetBpm = st.targetBpm;
-                        } else { s.bpm = st.startBpm;
-                            s.targetBpm = st.targetBpm; }
+                        } else {
+                            s.bpm = st.targetBpm;
+                            s.targetBpm = st.targetBpm;
+                        }
                     }
                     return s;
                 }
@@ -2769,16 +2879,21 @@
                         st.startBpm = s.bpm;
                         st.targetBpm = nextBpm;
                         st.duration = Math.random() * (maxInt - minInt) + minInt;
-                        if (trans === '跳变') { s.bpm = nextBpm;
-                            s.targetBpm = nextBpm; }
+                        if (trans === '跳变') {
+                            s.bpm = nextBpm;
+                            s.targetBpm = nextBpm;
+                            this._markJump(s, nextBpm, nextBpm);
+                        }
                     } else {
                         if (trans === '渐变') {
                             const p = Math.min(elapsed / st.duration, 1);
                             const ease = 1 - Math.pow(1 - p, 2);
                             s.bpm = st.startBpm + (st.targetBpm - st.startBpm) * ease;
                             s.targetBpm = st.targetBpm;
-                        } else { s.bpm = st.startBpm;
-                            s.targetBpm = st.targetBpm; }
+                        } else {
+                            s.bpm = st.targetBpm;
+                            s.targetBpm = st.targetBpm;
+                        }
                     }
                     return s;
                 }
@@ -2792,7 +2907,7 @@
                 init(s) {
                     s.bpm = s.params.minBpm || 60;
                     s.targetBpm = s.bpm;
-                    s.strategyState = { time: 0 };
+                    s.strategyState = { startTime: performance.now() };
                     return s;
                 }
                 update(s, now) {
@@ -2801,8 +2916,8 @@
                     const period = (s.params.period || 30) * 1000;
                     const waveform = s.params.waveform || '正弦波';
                     const st = s.strategyState;
-                    st.time += 16;
-                    const t = (st.time % period) / period;
+                    const elapsed = now - (st.startTime || now);
+                    const t = (elapsed % period) / period;
                     let ratio;
                     switch (waveform) {
                         case '正弦波':
@@ -2853,25 +2968,38 @@
                             st.chaseStartBpm = s.bpm;
                             st.chaseTargetBpm = hunt;
                             st.chaseStartTime = now;
-                            if (trans === '跳变') { s.bpm = hunt;
-                                s.targetBpm = hunt; }
+                            if (trans === '跳变') {
+                                s.bpm = hunt;
+                                s.targetBpm = hunt;
+                                this._markJump(s, hunt, hunt);
+                            }
                             st.nextChaseTime = 0;
                         } else {
                             if (s.bpm !== safe) {
-                                if (trans === '跳变') { s.bpm = safe;
-                                    s.targetBpm = safe; } else { s.bpm += (safe - s.bpm) * 0.02;
-                                    s.targetBpm = safe; }
+                                if (trans === '跳变') {
+                                    s.bpm = safe;
+                                    s.targetBpm = safe;
+                                    this._markJump(s, safe, safe);
+                                } else {
+                                    s.bpm += (safe - s.bpm) * 0.02;
+                                    s.targetBpm = safe;
+                                }
                             }
                         }
                     } else {
                         if (now >= st.chaseEndTime) {
                             st.inChase = false;
                             st.nextChaseTime = now + Math.random() * (maxGap - minGap) + minGap;
-                            if (trans === '跳变') { s.bpm = safe;
-                                s.targetBpm = safe; }
+                            if (trans === '跳变') {
+                                s.bpm = safe;
+                                s.targetBpm = safe;
+                                this._markJump(s, safe, safe);
+                            }
                         } else {
-                            if (trans === '跳变') { s.bpm = hunt;
-                                s.targetBpm = hunt; } else {
+                            if (trans === '跳变') {
+                                s.bpm = hunt;
+                                s.targetBpm = hunt;
+                            } else {
                                 const p = Math.min((now - st.chaseStartTime) / st.chaseDuration, 1);
                                 const ease = 1 - Math.pow(1 - p, 2);
                                 s.bpm = st.chaseStartBpm + (st.chaseTargetBpm - st.chaseStartBpm) * ease;
@@ -2898,13 +3026,12 @@
             let currentStrategy = new FixedMode();
 
             // =========================================================================
-            //  七、休息状态管理 (新增)
+            //  七、休息状态管理
             // =========================================================================
 
             function enterRestState() {
-                if (!LRE.running || LRE.resting) return;
-                // 记录原始BPM
-                LRE.restOriginalBpm = Math.max(10, LRE.bpm);
+                if (!LRE.running || LRE.resting || LRE.countdownActive) return;
+                LRE.restOriginalBpm = Math.max(10, Math.min(300, LRE.bpm));
                 LRE.restCurrentBpm = LRE.restOriginalBpm;
                 LRE.resting = true;
                 LRE.restPhase = 'down';
@@ -2914,53 +3041,39 @@
                 LRE.restPhaseProgress = 0;
                 LRE.restTriggeredAt = performance.now();
 
-                // 停止节拍定时器
                 if (LRE.tickTimer) {
                     clearTimeout(LRE.tickTimer);
                     LRE.tickTimer = null;
                 }
 
-                // 边缘计数+1
                 LRE.edgeCount++;
                 edgeCount.textContent = LRE.edgeCount;
                 dataEdge.textContent = LRE.edgeCount;
 
-                // 视觉反馈
                 app.classList.add('resting-active');
                 btnEdge.classList.add('resting-btn');
                 btnEdge.textContent = '🧘 休息中';
 
-                // 显示休息进度条
                 restProgressWrap.classList.add('show');
                 restProgressFill.style.width = '0%';
 
-                // Toast提示
                 showToast('🧘 进入休息', `5秒降至0 BPM · 保持15秒 · 5秒回升`);
-
-                // 播放一个提示音
                 playClick();
 
-                // 重置脉冲
                 for (const p of LRE.pulses) { p.active = false;
                     p.alpha = 0;
                     p.scale = 1;
                     p.blur = 0; }
-
-                // 触发一个柔和的视觉脉冲
                 LRE.canvasGlowTarget = 0.06;
-
-                // 更新UI
                 updateUI();
                 renderPulse();
             }
 
             function updateRestState(now) {
                 if (!LRE.resting) return;
-
                 const elapsed = now - LRE.restStartTime;
                 const total = LRE.restTotalDuration;
                 LRE.restProgress = Math.min(elapsed / total, 1);
-
                 let bpm = 0;
                 let phase = LRE.restPhase;
                 let phaseElapsed = now - LRE.restPhaseStartTime;
@@ -2969,17 +3082,13 @@
                     case 'down': {
                         const dur = LRE.restDownDuration;
                         const p = Math.min(phaseElapsed / dur, 1);
-                        const ease = Easing.linear(p);
-                        bpm = LRE.restOriginalBpm * (1 - ease);
+                        bpm = LRE.restOriginalBpm * (1 - p);
                         LRE.restPhaseProgress = p;
-                        if (p >= 1) {
-                            bpm = 0;
+                        if (p >= 1) { bpm = 0;
                             LRE.restPhase = 'hold';
                             LRE.restPhaseStartTime = now;
                             LRE.restPhaseProgress = 0;
-                            // 进入保持阶段提示
-                            playClick();
-                        }
+                            playClick(); }
                         break;
                     }
                     case 'hold': {
@@ -2987,55 +3096,34 @@
                         const p = Math.min(phaseElapsed / dur, 1);
                         bpm = 0;
                         LRE.restPhaseProgress = p;
-                        if (p >= 1) {
-                            LRE.restPhase = 'up';
+                        if (p >= 1) { LRE.restPhase = 'up';
                             LRE.restPhaseStartTime = now;
                             LRE.restPhaseProgress = 0;
-                            // 进入上升阶段提示
-                            playClick();
-                        }
+                            playClick(); }
                         break;
                     }
                     case 'up': {
                         const dur = LRE.restUpDuration;
                         const p = Math.min(phaseElapsed / dur, 1);
-                        const ease = Easing.linear(p);
-                        bpm = LRE.restOriginalBpm * ease;
+                        bpm = LRE.restOriginalBpm * p;
                         LRE.restPhaseProgress = p;
-                        if (p >= 1) {
-                            bpm = LRE.restOriginalBpm;
-                            // 休息结束
-                            exitRestState();
-                            return;
-                        }
+                        if (p >= 1) { bpm = LRE.restOriginalBpm;
+                            exitRestState(); return; }
                         break;
                     }
-                    default: {
-                        bpm = LRE.restOriginalBpm;
-                        exitRestState();
-                        return;
-                    }
+                    default: { bpm = LRE.restOriginalBpm;
+                        exitRestState(); return; }
                 }
 
-                // 更新当前BPM
                 LRE.restCurrentBpm = Math.max(0, Math.min(300, bpm));
                 LRE.bpm = LRE.restCurrentBpm;
                 LRE.targetBpm = LRE.restCurrentBpm;
-
-                // 更新休息进度条
                 restProgressFill.style.width = (LRE.restProgress * 100) + '%';
-
-                // 更新UI
                 updateUI();
-
-                // 在休息期间不触发节拍，beatProgressFill置0
                 beatProgressFill.style.width = '0%';
                 beatProgressFill.classList.remove('show-head');
 
-                // 如果总时长到了，结束引擎
-                if (LRE.elapsed >= LRE.totalDuration) {
-                    stopEngine();
-                }
+                if (LRE.elapsed >= LRE.totalDuration) stopEngine();
             }
 
             function exitRestState() {
@@ -3043,28 +3131,25 @@
                 LRE.resting = false;
                 LRE.restPhase = null;
                 LRE.restCurrentBpm = LRE.restOriginalBpm;
-                LRE.bpm = LRE.restOriginalBpm;
-                LRE.targetBpm = LRE.restOriginalBpm;
 
-                // 移除休息样式
+                // 退出休息时同步策略目标
+                const strategyTarget = currentStrategy.targetBpm || LRE.restOriginalBpm;
+                LRE.bpm = Math.max(40, Math.min(220, strategyTarget));
+                LRE.targetBpm = LRE.bpm;
+
                 app.classList.remove('resting-active');
                 btnEdge.classList.remove('resting-btn');
                 btnEdge.textContent = '🔴 边缘 ';
-
-                // 隐藏休息进度条
                 restProgressWrap.classList.remove('show');
                 restProgressFill.style.width = '0%';
 
-                // 重新启动节拍
                 if (LRE.running) {
                     LRE.lastBeatTime = performance.now();
+                    LRE._lastScheduledBpm = LRE.bpm;
                     scheduleTick();
                 }
 
-                // Toast提示
-                showToast('✅ 休息结束', `恢复至 ${Math.round(LRE.restOriginalBpm)} BPM`);
-
-                // 触发一个脉冲
+                showToast('✅ 休息结束', `恢复至 ${Math.round(LRE.bpm)} BPM`);
                 LRE.canvasGlowTarget = 0.04;
                 for (const p of LRE.pulses) {
                     p.active = true;
@@ -3079,14 +3164,39 @@
                     p.duration = 100;
                     p.thickness = 0.06;
                 }
-
                 updateUI();
                 renderPulse();
             }
 
             // =========================================================================
-            //  八、核心更新函数 (增强版)
+            //  八、核心更新函数
             // =========================================================================
+
+            function applyJumpBpm(newBpm, newTarget) {
+                if (!LRE.running || LRE.resting) return;
+                const clamped = Math.max(40, Math.min(220, newBpm));
+                const clampedTarget = Math.max(40, Math.min(220, newTarget || newBpm));
+
+                LRE.bpm = clamped;
+                LRE.targetBpm = clampedTarget;
+                LRE.beatInterval = 60000 / Math.max(clamped, 10);
+                LRE._lastScheduledBpm = clamped;
+
+                if (LRE.tickTimer) {
+                    clearTimeout(LRE.tickTimer);
+                    LRE.tickTimer = null;
+                }
+
+                LRE.lastBeatTime = performance.now() - LRE.beatInterval * 0.25;
+                LRE.beatPhase = 0;
+                LRE._lastJumpTime = performance.now();
+
+                triggerBeat();
+                scheduleTick();
+                updateUI();
+                renderPulse();
+            }
+
             function updateLRE(now) {
                 if (!LRE.running) return;
                 const dt = Math.min(16, now - (LRE._lastUpdate || now));
@@ -3094,19 +3204,32 @@
                 LRE.delta = dt;
                 LRE.now = now;
 
-                // ---- 休息状态优先 ----
                 if (LRE.resting) {
                     updateRestState(now);
-                    // 更新DOM（但不触发节拍）
                     updateDOMForRest();
                     renderPulse();
                     return;
                 }
 
-                // ---- 正常模式策略 ----
                 currentStrategy.update(LRE, now);
-                LRE.bpm = Math.max(10, Math.min(300, LRE.bpm));
-                LRE.targetBpm = Math.max(10, Math.min(300, LRE.targetBpm));
+
+                // 跳变检测
+                if (LRE._jumpLock && LRE.running && !LRE.resting) {
+                    const jumpBpm = Math.max(40, Math.min(220, LRE._jumpBpm));
+                    const jumpTarget = Math.max(40, Math.min(220, LRE._jumpTarget || jumpBpm));
+                    applyJumpBpm(jumpBpm, jumpTarget);
+                    LRE._jumpLock = false;
+                }
+
+                // 动态保护期
+                const protectTime = Math.min(LRE.beatInterval * 0.6, 600);
+                if (LRE._lastJumpTime && (now - LRE._lastJumpTime) < protectTime) {
+                    // 保护期
+                } else {
+                    LRE.bpm = Math.max(40, Math.min(220, LRE.bpm));
+                    LRE.targetBpm = Math.max(40, Math.min(220, LRE.targetBpm));
+                }
+
                 LRE.bpmSum += LRE.bpm;
                 LRE.bpmCount++;
                 if (LRE.bpm > LRE.maxBpm) LRE.maxBpm = LRE.bpm;
@@ -3115,7 +3238,6 @@
                 const beatElapsed = now - LRE.lastBeatTime;
                 LRE.beatPhase = Math.min(beatElapsed / LRE.beatInterval, 1);
 
-                // 能量
                 const energyDiff = LRE.energyTarget - LRE.energy;
                 LRE.energyVelocity += energyDiff * 0.08;
                 LRE.energyVelocity *= 0.92;
@@ -3127,7 +3249,6 @@
                 LRE.energyTarget *= 0.998;
                 if (LRE.energyTarget < 0.1) LRE.energyTarget = 0;
 
-                // DOM 动态
                 const e = LRE.energy / 100;
                 const ambientHero = 1 + 0.008 * Math.sin(now / 4000 + LRE.dom.ambientPhase);
                 const energyHero = e * 0.035;
@@ -3150,24 +3271,36 @@
                 LRE.canvasGlowTarget *= 0.97;
                 if (LRE.canvasGlowTarget < 0.0005) LRE.canvasGlowTarget = 0;
 
+                // BPM数字滚动动画
+                const bpmTarget = Math.round(LRE.bpm);
+                if (LRE.dom._bpmDisplayTarget !== bpmTarget) {
+                    LRE.dom._bpmDisplayTarget = bpmTarget;
+                }
+                const diff = LRE.dom._bpmDisplayTarget - LRE.dom._bpmDisplay;
+                if (Math.abs(diff) > 0.01) {
+                    LRE.dom._bpmDisplay += diff * Math.min(1, dt / 80);
+                    if (Math.abs(LRE.dom._bpmDisplay - LRE.dom._bpmDisplayTarget) < 0.1) {
+                        LRE.dom._bpmDisplay = LRE.dom._bpmDisplayTarget;
+                    }
+                    bpmNumber.textContent = Math.round(LRE.dom._bpmDisplay);
+                } else {
+                    bpmNumber.textContent = bpmTarget;
+                }
+
                 updatePulses(now);
                 updateCore(now);
                 renderPulse();
                 applyDOM();
                 updateUI();
                 updateProgress();
-
-                // 衰减节拍boost
                 decayBeatBoosts();
             }
 
             function updateDOMForRest() {
-                // 在休息状态下更新DOM，但不触发节拍
                 const d = LRE.dom;
                 const bpm = LRE.restCurrentBpm || 0;
                 bpmNumber.textContent = Math.round(bpm);
 
-                // 预签名
                 const phase = LRE.restPhase;
                 preSign.className = 'pre-sign';
                 if (phase === 'down') {
@@ -3183,45 +3316,28 @@
                     preSign.textContent = '—';
                 }
 
-                // 显示休息图标
                 restIcon.classList.add('show');
-
-                // BPM颜色
                 bpmBig.classList.add('resting-color');
                 bpmBig.classList.remove('warn');
-
-                // 模式标签
                 bpmModeLabel.textContent = '🧘 休息中';
                 bpmModeLabel.classList.add('resting-label');
-
-                // 状态标签
                 statusDot.className = 'dot resting-dot';
                 statusLabel.textContent = '休息中';
                 statusLabel.classList.add('resting-label');
-
-                // 进度条
                 beatProgressFill.classList.add('resting-fill');
                 beatProgressFill.style.width = '0%';
                 beatProgressFill.classList.remove('show-head');
-
-                // 环
                 bpmRing.classList.add('resting-ring');
                 bpmRing.classList.remove('warn');
-
-                // 背景
                 app.style.background = 'var(--surface)';
                 app.style.backgroundColor = 'var(--surface)';
-
-                // 边缘按钮
                 btnEdge.classList.add('resting-btn');
                 btnEdge.textContent = '🧘 休息中';
 
-                // 其他UI
                 const meta = MODE_META[LRE.mode] || { label: '固定', icon: '🔊' };
                 currentModeDisplay.textContent = meta.label;
                 currentModeDisplay.classList.add('resting');
 
-                // 数据行
                 dataEdge.textContent = LRE.edgeCount;
                 const mins = Math.floor(LRE.elapsed / 60);
                 const secs = Math.floor(LRE.elapsed % 60);
@@ -3229,11 +3345,8 @@
                 dataMax.textContent = LRE.maxBpm > 0 ? Math.round(LRE.maxBpm) : '—';
                 dataAvg.textContent = LRE.bpmCount > 0 ? Math.round(LRE.bpmSum / LRE.bpmCount) : '—';
 
-                // 休息进度条
                 restProgressWrap.classList.add('show');
                 restProgressFill.style.width = (LRE.restProgress * 100) + '%';
-
-                // 按钮缩放
                 btnStart.style.transform = 'scale(1)';
             }
 
@@ -3250,7 +3363,6 @@
                     if (elapsed < 0) continue;
                     const p = Math.min(elapsed / layer.duration, 1);
                     layer.progress = p;
-                    const easeP = Easing.easeOutQuart(p);
                     const scaleDelta = (layer.targetScale - 1) * (1 - Math.pow(1 - p, 3));
                     layer.scale = 1 + scaleDelta;
                     const alphaRise = Math.min(p * 4, 1);
@@ -3348,10 +3460,13 @@
                 bpmBig.style.textShadow = d.bpmGlow > 0.01 ?
                     `0 0 ${d.bpmGlow * 40}px ${getPrimary(0.3)}` :
                     'none';
+
+                // ✅ 修复：使用正弦波实现进度条来回摆动
                 const beatPulse = Math.sin(LRE.beatPhase * Math.PI);
                 const beatPercent = Math.max(0, Math.min(1, beatPulse)) * 100;
                 beatProgressFill.style.width = beatPercent + '%';
                 beatProgressFill.classList.toggle('show-head', beatPulse > 0.3);
+
                 const bf = d.bgFlash;
                 if (bf > 0.001) {
                     if (currentTheme === 'dark') {
@@ -3381,7 +3496,7 @@
             }
 
             // =========================================================================
-            //  九、Pulse 渲染器 (增强休息支持)
+            //  九、Pulse 渲染器
             // =========================================================================
             function renderPulse() {
                 const c = pulseCanvas;
@@ -3564,7 +3679,6 @@
                 }
 
                 if (isResting) {
-                    // 休息光环
                     const rR = maxR * 0.60;
                     const rGrad = ctx.createRadialGradient(cx, cy, rR * 0.3, cx, cy, rR);
                     const breathe = 0.6 + 0.4 * Math.sin(performance.now() / 800 + LRE.dom.ambientPhase);
@@ -3579,7 +3693,6 @@
                     ctx.fill();
                     ctx.shadowBlur = 0;
 
-                    // 中心柔和光点
                     const dotR = maxR * 0.06;
                     const dotGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, dotR);
                     dotGrad.addColorStop(0, getRest(0.4 * breathe));
@@ -3612,6 +3725,9 @@
                 pulseCanvas._h = h;
             }
             window.addEventListener('resize', resizePulse);
+            window.addEventListener('orientationchange', function() {
+                setTimeout(resizePulse, 200);
+            });
             setTimeout(resizePulse, 50);
 
             // =========================================================================
@@ -3620,9 +3736,11 @@
             function updateUI() {
                 const bpm = LRE.running ? LRE.bpm : (LRE.targetBpm || LRE.bpm);
                 const rounded = Math.round(bpm);
-                bpmNumber.textContent = rounded;
 
-                // 如果处于休息状态，由 updateDOMForRest 处理
+                if (!LRE.running) {
+                    bpmNumber.textContent = rounded;
+                }
+
                 if (LRE.resting) return;
 
                 const diff = LRE.targetBpm - LRE.bpm;
@@ -3652,11 +3770,9 @@
                 btnStart.classList.toggle('running', isRunning);
                 app.classList.toggle('immersive', isRunning && !LRE.resting);
 
-                // 边缘按钮状态
                 if (!LRE.resting) {
                     btnEdge.classList.remove('resting-btn');
                     btnEdge.textContent = '🔴 边缘 ';
-                    // 重新追加计数
                     const countSpan = btnEdge.querySelector('.edge-count');
                     if (countSpan) countSpan.textContent = LRE.edgeCount;
                 }
@@ -3675,7 +3791,6 @@
                     dataAvg.textContent = LRE.bpmCount > 0 ? Math.round(LRE.bpmSum / LRE.bpmCount) : '—';
                 }
 
-                // 休息进度条隐藏
                 restProgressWrap.classList.remove('show');
                 restProgressFill.style.width = '0%';
                 bpmRing.classList.remove('resting-ring');
@@ -3696,39 +3811,51 @@
                     `${String(Math.floor(LRE.elapsed/60)).padStart(2,'0')}:${String(Math.floor(LRE.elapsed%60)).padStart(2,'0')}`;
                 progressFill.style.width = (progress * 100) + '%';
                 progressFill.classList.remove('warning', 'danger', 'resting-progress');
-                if (LRE.resting) {
-                    progressFill.classList.add('resting-progress');
-                }
+                if (LRE.resting) progressFill.classList.add('resting-progress');
                 if (progress > 0.7) progressFill.classList.add('danger');
                 else if (progress > 0.4) progressFill.classList.add('warning');
                 if (remain <= 0 && LRE.running) stopEngine();
             }
 
             // =========================================================================
-            //  十一、引擎控制 (增强)
+            //  十一、引擎控制
             // =========================================================================
-            function doTick() {
-                if (!LRE.running || LRE.resting) return;
-                const now = performance.now();
-                currentStrategy.update(LRE, now);
-                triggerBeat();
-                updateUI();
-                if (LRE.totalDuration > 0 && LRE.elapsed >= LRE.totalDuration) {
-                    stopEngine();
-                }
-            }
 
             function scheduleTick() {
                 if (!LRE.running || LRE.resting) return;
+
+                if (LRE.tickTimer) {
+                    clearTimeout(LRE.tickTimer);
+                    LRE.tickTimer = null;
+                }
+
                 const interval = 60000 / Math.max(LRE.bpm, 10);
+                LRE._lastScheduledBpm = LRE.bpm;
+
                 LRE.tickTimer = setTimeout(() => {
-                    doTick();
+                    if (!LRE.running || LRE.resting) return;
+                    const now = performance.now();
+                    currentStrategy.update(LRE, now);
+                    triggerBeat();
+                    updateUI();
+                    if (LRE.totalDuration > 0 && LRE.elapsed >= LRE.totalDuration) {
+                        stopEngine();
+                    }
                     scheduleTick();
                 }, interval);
             }
 
+            let _countdownTimer = null;
+            let _countdownInterval = null;
+
             function startEngine() {
-                if (LRE.running || LRE.countdownActive) return;
+                if (LRE.running || LRE.countdownActive) {
+                    if (LRE.countdownActive) {
+                        cancelCountdown();
+                        showToast('⏹ 已取消', '倒计时已终止');
+                    }
+                    return;
+                }
                 if (!LRE.bpm || LRE.bpm < 10) { LRE.bpm = 120;
                     LRE.targetBpm = 120; }
                 gatherParams();
@@ -3752,9 +3879,14 @@
                 LRE.dom._bpmScaleBoost = 0;
                 LRE.dom._bpmGlowBoost = 0;
                 LRE.dom._headBoost = 0;
+                LRE.dom._bpmDisplay = LRE.bpm;
+                LRE.dom._bpmDisplayTarget = LRE.bpm;
                 LRE.resting = false;
                 LRE.restPhase = null;
                 LRE.restProgress = 0;
+                LRE._lastScheduledBpm = LRE.bpm;
+                LRE._jumpLock = false;
+                LRE._lastJumpTime = 0;
                 restProgressWrap.classList.remove('show');
                 restProgressFill.style.width = '0%';
                 btnEdge.classList.remove('resting-btn');
@@ -3766,47 +3898,68 @@
                     p.scale = 1;
                     p.blur = 0; }
                 beatProgressFill.style.width = '0%';
+
                 LRE.countdownActive = true;
                 let count = 3;
                 countdownOverlay.textContent = count;
                 countdownOverlay.classList.add('show');
                 playClick();
-                const cdInterval = setInterval(() => {
+
+                _countdownInterval = setInterval(() => {
                     count--;
                     if (count > 0) {
                         countdownOverlay.textContent = count;
                         playClick();
                     } else {
-                        clearInterval(cdInterval);
+                        clearInterval(_countdownInterval);
+                        _countdownInterval = null;
                         countdownOverlay.classList.remove('show');
                         LRE.countdownActive = false;
                         LRE.running = true;
                         currentStrategy.init(LRE);
                         LRE.lastBeatTime = performance.now();
+                        LRE._lastScheduledBpm = LRE.bpm;
+                        LRE.dom._bpmDisplay = LRE.bpm;
+                        LRE.dom._bpmDisplayTarget = LRE.bpm;
                         updateUI();
                         if (LRE.progressTimer) clearInterval(LRE.progressTimer);
                         LRE.progressTimer = setInterval(() => {
-                            if (LRE.running && !LRE.resting) { LRE.elapsed += 0.1;
-                                updateProgress(); } else if (LRE.running && LRE.resting) { LRE.elapsed +=
-                                0.1;
+                            if (LRE.running) { LRE.elapsed += 0.1;
                                 updateProgress(); }
                         }, 100);
                         if (LRE.dataTimer) clearInterval(LRE.dataTimer);
                         LRE.dataTimer = setInterval(() => {
                             if (LRE.running) updateUI();
                         }, 1000);
-                        doTick();
-                        scheduleTick();
-                        if (!LRE.animRunning) {
-                            LRE.animRunning = true;
-                            LRE._lastUpdate = performance.now();
-                            loop();
+                        if (LRE.animRunning) {
+                            cancelAnimationFrame(LRE.rafId);
                         }
+                        LRE.animRunning = true;
+                        LRE._lastUpdate = performance.now();
+                        loop();
+                        scheduleTick();
                     }
                 }, 700);
+
+                _countdownTimer = _countdownInterval;
+            }
+
+            function cancelCountdown() {
+                if (_countdownInterval) {
+                    clearInterval(_countdownInterval);
+                    _countdownInterval = null;
+                }
+                if (_countdownTimer) {
+                    clearInterval(_countdownTimer);
+                    _countdownTimer = null;
+                }
+                LRE.countdownActive = false;
+                countdownOverlay.classList.remove('show');
+                btnStart.style.transform = 'scale(1)';
             }
 
             function stopEngine() {
+                cancelCountdown();
                 LRE.running = false;
                 if (LRE.tickTimer) { clearTimeout(LRE.tickTimer);
                     LRE.tickTimer = null; }
@@ -3814,6 +3967,9 @@
                     LRE.progressTimer = null; }
                 if (LRE.dataTimer) { clearInterval(LRE.dataTimer);
                     LRE.dataTimer = null; }
+                if (LRE.rafId) { cancelAnimationFrame(LRE.rafId);
+                    LRE.rafId = null; }
+                LRE.animRunning = false;
                 LRE.resting = false;
                 LRE.restPhase = null;
                 restProgressWrap.classList.remove('show');
@@ -3863,13 +4019,12 @@
                 statusDot.className = 'dot';
                 statusLabel.classList.remove('resting-label');
                 currentModeDisplay.classList.remove('resting');
-                // 恢复边缘按钮计数显示
                 const countSpan = btnEdge.querySelector('.edge-count');
                 if (countSpan) countSpan.textContent = LRE.edgeCount;
             }
 
             function resetEngine() {
-                // 如果处于休息状态，先退出
+                cancelCountdown();
                 if (LRE.resting) {
                     LRE.resting = false;
                     LRE.restPhase = null;
@@ -3900,6 +4055,10 @@
                 LRE.restOriginalBpm = 120;
                 LRE.restCurrentBpm = 120;
                 LRE.restProgress = 0;
+                LRE._jumpLock = false;
+                LRE._lastJumpTime = 0;
+                LRE.dom._bpmDisplay = LRE.bpm;
+                LRE.dom._bpmDisplayTarget = LRE.bpm;
                 for (const p of LRE.pulses) { p.active = false;
                     p.alpha = 0;
                     p.scale = 1;
@@ -3962,10 +4121,15 @@
                 app.classList.remove('resting-active');
                 LRE.resting = false;
                 LRE.restPhase = null;
+                bpmNumber.textContent = Math.round(LRE.bpm);
             }
 
             function loop() {
                 if (!LRE.animRunning) return;
+                if (document.hidden) {
+                    LRE.rafId = requestAnimationFrame(loop);
+                    return;
+                }
                 const now = performance.now();
                 updateLRE(now);
                 LRE.rafId = requestAnimationFrame(loop);
@@ -3975,8 +4139,8 @@
             //  十二、模式切换 & 参数
             // =========================================================================
             function switchMode(mode) {
+                cancelCountdown();
                 if (LRE.running) stopEngine();
-                // 如果处于休息状态，强制退出
                 if (LRE.resting) {
                     LRE.resting = false;
                     LRE.restPhase = null;
@@ -3997,6 +4161,8 @@
                 LRE.mode = mode;
                 LRE.params = {};
                 LRE.strategyState = {};
+                LRE._jumpLock = false;
+                LRE._lastJumpTime = 0;
                 const factory = modeFactory[mode];
                 currentStrategy = factory ? factory() : new FixedMode();
                 const defs = getParamDefs(mode);
@@ -4009,8 +4175,17 @@
                         LRE.bpm = Math.round((d.default + (maxD ? maxD.default : 200)) / 2);
                     }
                     if (d.id === 'duration') LRE.totalDuration = d.default * 60;
+                    if (!(d.id in LRE.params)) {
+                        if (d.type === 'bpmList') {
+                            LRE.params[d.id] = [...(d.default || [])];
+                        } else {
+                            LRE.params[d.id] = d.default;
+                        }
+                    }
                 });
                 LRE.targetBpm = LRE.bpm;
+                LRE.dom._bpmDisplay = LRE.bpm;
+                LRE.dom._bpmDisplayTarget = LRE.bpm;
                 currentStrategy.init(LRE);
                 const meta = MODE_META[mode] || { label: '固定', icon: '⩩' };
                 currentModeDisplay.textContent = meta.label;
@@ -4050,6 +4225,7 @@
                 LRE.restProgress = 0;
                 LRE.resting = false;
                 LRE.restPhase = null;
+                LRE._lastScheduledBpm = LRE.bpm;
                 restProgressWrap.classList.remove('show');
                 restProgressFill.style.width = '0%';
                 btnEdge.classList.remove('resting-btn');
@@ -4063,6 +4239,7 @@
                 statusDot.className = 'dot';
                 statusLabel.classList.remove('resting-label');
                 currentModeDisplay.classList.remove('resting');
+                bpmNumber.textContent = Math.round(LRE.bpm);
                 applyDOM();
                 btnStart.style.transform = 'scale(1)';
                 bpmBig.style.transform = 'scale(1)';
@@ -4081,13 +4258,9 @@
             // =========================================================================
             //  十三、模态窗口控制
             // =========================================================================
-            function openModalMode() {
-                modalMode.classList.add('open');
-            }
+            function openModalMode() { modalMode.classList.add('open'); }
 
-            function closeModalMode() {
-                modalMode.classList.remove('open');
-            }
+            function closeModalMode() { modalMode.classList.remove('open'); }
 
             function openModalParams() {
                 renderParamsModal(LRE.mode);
@@ -4096,9 +4269,7 @@
                 modalParams.classList.add('open');
             }
 
-            function closeModalParams() {
-                modalParams.classList.remove('open');
-            }
+            function closeModalParams() { modalParams.classList.remove('open'); }
 
             // =========================================================================
             //  十四、Toast
@@ -4133,13 +4304,19 @@
                         LRE.params.bpmList = current;
                         renderBpmTagsModal(container, current);
                         LRE.strategyState = {};
+                        if (LRE.running) {
+                            gatherParams();
+                            currentStrategy.init(LRE);
+                            updateUI();
+                            renderPulse();
+                        }
                     });
                     container.appendChild(tag);
                 });
                 if (list.length === 0) {
                     const empty = document.createElement('span');
                     empty.style.color = 'var(--text-muted)';
-                    empty.style.fontSize = '0.5rem';
+                    empty.style.fontSize = 'var(--text-xs)';
                     empty.textContent = '添加 BPM';
                     container.appendChild(empty);
                 }
@@ -4181,6 +4358,12 @@
                             const v = parseFloat(this.value);
                             valSpan.textContent = v;
                             LRE.params[def.id] = v;
+                            if (LRE.running) {
+                                gatherParams();
+                                currentStrategy.init(LRE);
+                                updateUI();
+                                renderPulse();
+                            }
                         });
                         div.appendChild(input);
                         const labels = document.createElement('div');
@@ -4202,6 +4385,12 @@
                             if (def.max !== undefined) v = Math.min(v, def.max);
                             this.value = v;
                             LRE.params[def.id] = v;
+                            if (LRE.running) {
+                                gatherParams();
+                                currentStrategy.init(LRE);
+                                updateUI();
+                                renderPulse();
+                            }
                         });
                         div.appendChild(input);
 
@@ -4219,6 +4408,12 @@
                                     'active'));
                                 this.classList.add('active');
                                 LRE.params[def.id] = this.dataset.value;
+                                if (LRE.running) {
+                                    gatherParams();
+                                    currentStrategy.init(LRE);
+                                    updateUI();
+                                    renderPulse();
+                                }
                             });
                             group.appendChild(btn);
                         });
@@ -4247,6 +4442,12 @@
                             renderBpmTagsModal(container, list);
                             addInput.value = '';
                             LRE.strategyState = {};
+                            if (LRE.running) {
+                                gatherParams();
+                                currentStrategy.init(LRE);
+                                updateUI();
+                                renderPulse();
+                            }
                         });
                         addRow.appendChild(addInput);
                         addRow.appendChild(addBtn);
@@ -4270,6 +4471,12 @@
                                     'active'));
                                 this.classList.add('active');
                                 LRE.params[def.id] = this.dataset.value;
+                                if (LRE.running) {
+                                    gatherParams();
+                                    currentStrategy.init(LRE);
+                                    updateUI();
+                                    renderPulse();
+                                }
                             });
                             group.appendChild(btn);
                         });
@@ -4283,8 +4490,6 @@
                 const mode = LRE.mode;
                 const defs = getParamDefs(mode);
                 defs.forEach(def => {
-                    if (def.type === 'bpmList') {} else if (def.type === 'range' || def.type === 'number') {} else if (
-                        def.type === 'radio') {} else if (def.type === 'waveform') {}
                     if (def.id === 'duration' && LRE.params.duration) {
                         LRE.totalDuration = LRE.params.duration * 60;
                     }
@@ -4316,13 +4521,15 @@
                         maxB = LRE.params.maxBpm || 200;
                     LRE.bpm = Math.round((minB + maxB) / 2);
                     LRE.targetBpm = LRE.bpm;
-                    LRE.strategyState = { time: 0 };
+                    LRE.strategyState = { startTime: performance.now() };
                 } else if (mode === MODES.CHASE) {
                     LRE.bpm = LRE.params.safeBpm || 90;
                     LRE.targetBpm = LRE.bpm;
                     LRE.strategyState = {};
                 }
                 currentStrategy.init(LRE);
+                LRE.dom._bpmDisplay = LRE.bpm;
+                LRE.dom._bpmDisplayTarget = LRE.bpm;
                 updateUI();
                 renderPulse();
             }
@@ -4362,7 +4569,7 @@
             }
 
             // =========================================================================
-            //  十七、事件绑定 (增强)
+            //  十七、事件绑定
             // =========================================================================
             btnModeSwitch.addEventListener('click', openModalMode);
             modalModeClose.addEventListener('click', closeModalMode);
@@ -4386,7 +4593,6 @@
                 showToast(`✅ 参数已生效`, `${meta.label}模式设置已更新`);
             });
 
-            // ---- 边缘按钮：触发休息 ----
             btnEdge.addEventListener('click', function() {
                 if (!LRE.running) {
                     showToast('⏸ 请先开始节奏', '点击「开始」再使用边缘休息');
@@ -4396,14 +4602,11 @@
                     showToast('🧘 已在休息中', `剩余 ${Math.round((1 - LRE.restProgress) * 25)} 秒`);
                     return;
                 }
-                // 进入休息状态
                 enterRestState();
             });
 
-            // ---- 开始/停止 ----
             btnStart.addEventListener('click', function() {
                 if (LRE.running) {
-                    // 如果正在休息，停止时先退出休息
                     if (LRE.resting) {
                         LRE.resting = false;
                         LRE.restPhase = null;
@@ -4431,6 +4634,7 @@
                 resetEngine();
             });
 
+            // 保留键盘事件，但不在UI显示（移动端为主）
             document.addEventListener('keydown', function(e) {
                 if (e.key === ' ' || e.key === 'Space') {
                     e.preventDefault();
@@ -4468,24 +4672,24 @@
                 LRE.animRunning = true;
                 LRE._lastUpdate = performance.now();
                 LRE.dom.ambientPhase = Math.random() * 100;
+                LRE.dom._bpmDisplay = LRE.bpm;
+                LRE.dom._bpmDisplayTarget = LRE.bpm;
                 loop();
                 btnStart.style.transform = 'scale(1)';
                 bpmHero.style.transform = 'scale(1)';
                 bpmHero.style.boxShadow = 'var(--shadow)';
-                // 初始化边缘按钮计数
                 const countSpan = btnEdge.querySelector('.edge-count');
                 if (countSpan) countSpan.textContent = '0';
                 edgeCount.textContent = '0';
+                bpmNumber.textContent = Math.round(LRE.bpm);
                 setTimeout(() => {
-                    showToast('🎵 节奏边缘 · 休息增强', '点击「边缘」按钮触发临时休息 (5s↓ + 15s停 + 5s↑)');
+                    showToast('🎵 节奏边缘 · 选择模式后可调整具体游戏参数');
                 }, 600);
             }
 
             init();
 
-            window.__LRE = LRE;
-            window.__switchMode = switchMode;
-            window.__enterRest = enterRestState;
+            // 不暴露全局变量
 
         })();
     </script>
