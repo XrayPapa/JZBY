@@ -1,0 +1,4493 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
+    <title>节奏边缘 · 休息增强</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+        :root {
+            --bg: #F5F2ED;
+            --surface: #FFFFFF;
+            --surface-border: #E0DBD0;
+            --text-primary: #0F172A;
+            --text-secondary: #475569;
+            --text-muted: #94A3B8;
+            --primary: #7C3AED;
+            --primary-light: #A78BFA;
+            --primary-bg: rgba(124, 58, 237, 0.12);
+            --edge: #EF4444;
+            --edge-bg: rgba(239, 68, 68, 0.10);
+            --rest: #0EA5E9;
+            --rest-bg: rgba(14, 165, 233, 0.12);
+            --success: #22C55E;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.08);
+            --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.15);
+            --radius: 20px;
+            --radius-sm: 12px;
+            --radius-full: 9999px;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --beat-color: rgba(124, 58, 237, 0.12);
+            --modal-overlay: rgba(0, 0, 0, 0.40);
+            --btn-radius: 6px;
+        }
+        [data-theme="dark"] {
+            --bg: #0A0A0F;
+            --surface: #14141C;
+            --surface-border: #2A2A3A;
+            --text-primary: #F0F0F5;
+            --text-secondary: #B0B0C0;
+            --text-muted: #6A6A7A;
+            --primary: #0088FF;
+            --primary-light: #4DB8FF;
+            --primary-bg: rgba(0, 136, 255, 0.20);
+            --edge: #F87171;
+            --edge-bg: rgba(248, 113, 113, 0.14);
+            --rest: #38BDF8;
+            --rest-bg: rgba(56, 189, 248, 0.15);
+            --success: #4ADE80;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+            --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.65);
+            --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.80);
+            --beat-color: rgba(0, 136, 255, 0.20);
+            --modal-overlay: rgba(0, 0, 0, 0.70);
+        }
+        html,
+        body {
+            height: 100%;
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text-primary);
+            line-height: 1.4;
+            touch-action: manipulation;
+            transition: background var(--transition), color var(--transition);
+            overflow: hidden;
+        }
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            min-height: 100vh;
+            min-height: 100dvh;
+        }
+        .app {
+            width: 100%;
+            max-width: 420px;
+            height: 100vh;
+            max-height: 96vh;
+            margin: 0 auto;
+            background: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--surface-border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            transition: border-color 0.3s ease, box-shadow 0.4s ease, background 0.15s ease;
+            padding: 10px 12px 6px 12px;
+            will-change: transform, box-shadow, border-color, background;
+        }
+        .app.edge-flash {
+            border-color: var(--edge) !important;
+            box-shadow: 0 0 50px rgba(239, 68, 68, 0.14);
+        }
+        .app.resting-active {
+            border-color: var(--rest) !important;
+            box-shadow: 0 0 50px rgba(14, 165, 233, 0.12);
+        }
+        .app.immersive .app-header {
+            opacity: 0;
+            pointer-events: none;
+            height: 0;
+            overflow: hidden;
+            padding: 0;
+            margin: 0;
+            border: none;
+            transition: opacity 0.35s ease, height 0.35s ease;
+        }
+        .app.immersive .mode-selector-row {
+            opacity: 0;
+            pointer-events: none;
+            height: 0;
+            overflow: hidden;
+            padding: 0;
+            margin: 0;
+            border: none;
+            transition: opacity 0.35s ease, height 0.35s ease;
+        }
+        .app.immersive .params-wrap,
+        .app.immersive .footer-bar,
+        .app.immersive .data-row {
+            opacity: 0;
+            pointer-events: none;
+            height: 0;
+            overflow: hidden;
+            padding: 0;
+            margin: 0;
+            border: none;
+            transition: opacity 0.35s ease, height 0.35s ease;
+        }
+        .app.immersive .visual-merged {
+            padding: 12px 8px;
+            margin: 0 0 4px 0;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+        }
+        .app.immersive .bpm-big {
+            font-size: 5.6rem;
+        }
+        .app.immersive .control-bar {
+            padding: 4px 0 6px;
+        }
+        .app.immersive .progress-wrap {
+            padding: 4px 0 4px;
+        }
+        .app.immersive .bpm-hero {
+            padding: 8px 0 6px;
+            min-height: 110px;
+        }
+        .app.immersive .vis-circle {
+            max-width: 260px;
+        }
+        .app.immersive .status-badge {
+            opacity: 1 !important;
+            pointer-events: none !important;
+        }
+        .app.immersive .btn-grid {
+            max-width: 280px;
+        }
+
+        /* ===== Header ===== */
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0 14px 0;
+            flex-shrink: 0;
+            background: transparent;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            min-height: 56px;
+            border-bottom: 1px solid var(--surface-border);
+            margin-bottom: 6px;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo-icon {
+            font-size: 32px;
+            line-height: 1;
+            filter: grayscale(1);
+        }
+        .app-header .title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
+            transition: color var(--transition);
+            line-height: 1.2;
+        }
+        .app-header .title small {
+            font-weight: 500;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            background: var(--primary-bg);
+            padding: 2px 12px;
+            border-radius: 14px;
+            margin-left: 6px;
+            letter-spacing: 0.4px;
+            transition: all var(--transition);
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        /* ===== 拉灯绳 ===== */
+        .light-pull {
+            position: relative;
+            width: 36px;
+            height: 54px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            touch-action: manipulation;
+            flex-shrink: 0;
+            padding-top: 2px;
+        }
+        .pull-rope {
+            width: 2px;
+            height: 26px;
+            background: var(--text-muted);
+            flex-shrink: 0;
+            border-radius: 2px;
+            transition: height 0.35s cubic-bezier(0.34, 1.2, 0.64, 1), background 0.3s ease;
+            position: relative;
+            transform-origin: top center;
+        }
+        .pull-rope::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--surface-border);
+            border: 1px solid var(--text-muted);
+            transition: background 0.3s ease;
+        }
+        .pull-ring {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2.5px solid var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.35s cubic-bezier(0.34, 1.2, 0.64, 1), border-color 0.3s ease, background 0.3s ease;
+            background: var(--surface);
+            margin-top: -1px;
+            flex-shrink: 0;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+        .pull-ring .ring-inner {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--primary);
+            transition: background 0.3s ease, transform 0.3s ease;
+            box-shadow: 0 0 12px rgba(124, 58, 237, 0.15);
+        }
+        [data-theme="dark"] .pull-ring .ring-inner {
+            background: var(--primary-light);
+            box-shadow: 0 0 12px rgba(0, 136, 255, 0.25);
+        }
+        .light-pull.pulled .pull-rope {
+            height: 44px;
+        }
+        .light-pull.pulled .pull-ring {
+            transform: translateY(20px) scale(0.92);
+            border-color: var(--primary);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+        }
+        .light-pull.pulled .pull-ring .ring-inner {
+            transform: scale(1.2);
+        }
+        .light-pull:active .pull-ring:not(.pulled) {
+            transform: translateY(6px) scale(0.96);
+        }
+        .light-pull .pull-tooltip {
+            position: absolute;
+            bottom: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.5rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            letter-spacing: 0.3px;
+        }
+        .light-pull:hover .pull-tooltip {
+            opacity: 0.6;
+        }
+
+        /* ===== 模式选择行 ===== */
+        .mode-selector-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 6px 0 10px 0;
+            flex-shrink: 0;
+            border-bottom: 1px solid var(--surface-border);
+            margin-bottom: 6px;
+            transition: all var(--transition);
+        }
+        .mode-current-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        .mode-current-display .mode-name {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 0.9rem;
+            background: var(--primary-bg);
+            padding: 2px 16px;
+            border-radius: 14px;
+            border: 1px solid var(--surface-border);
+            transition: all var(--transition);
+        }
+        .mode-current-display .mode-name.resting {
+            color: var(--rest);
+            background: var(--rest-bg);
+            border-color: var(--rest);
+        }
+        .btn-mode-switch {
+            padding: 8px 20px;
+            border-radius: var(--btn-radius);
+            border: 1px solid var(--surface-border);
+            background: var(--bg);
+            color: var(--text-primary);
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            touch-action: manipulation;
+            user-select: none;
+            min-height: 36px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
+        }
+        .btn-mode-switch:active {
+            transform: scale(0.94);
+        }
+        .btn-mode-switch:hover {
+            background: var(--primary-bg);
+            border-color: var(--primary);
+        }
+        .btn-mode-switch .icon {
+            font-size: 0.9rem;
+        }
+
+        /* ===== BPM Hero ===== */
+        .bpm-hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 0 6px 0;
+            flex-shrink: 0;
+            user-select: none;
+            position: relative;
+            background: var(--surface);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--surface-border);
+            margin-bottom: 8px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            min-height: 100px;
+            will-change: transform, box-shadow, border-color;
+            flex: 0 0 auto;
+        }
+        .bpm-hero .bpm-ring {
+            position: absolute;
+            width: 70%;
+            height: 70%;
+            top: 15%;
+            left: 15%;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            pointer-events: none;
+            transition: border-color 0.5s ease, box-shadow 0.5s ease;
+        }
+        .bpm-hero .bpm-ring.warn {
+            border-color: var(--edge);
+            box-shadow: 0 0 60px rgba(239, 68, 68, 0.08);
+        }
+        .bpm-hero .bpm-ring.resting-ring {
+            border-color: var(--rest);
+            box-shadow: 0 0 60px rgba(14, 165, 233, 0.10);
+        }
+        .bpm-big {
+            font-size: 4.2rem;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -1px;
+            color: var(--text-primary);
+            line-height: 1.05;
+            transition: color var(--transition);
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            gap: 2px;
+            will-change: transform, text-shadow;
+        }
+        .bpm-big.warn {
+            color: var(--edge);
+        }
+        .bpm-big.resting-color {
+            color: var(--rest);
+        }
+        .bpm-big .unit {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            letter-spacing: 1.5px;
+            margin-left: 2px;
+            transition: color var(--transition);
+        }
+        .bpm-big .rest-icon {
+            font-size: 1.6rem;
+            margin-left: 6px;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            line-height: 1;
+        }
+        .bpm-big .rest-icon.show {
+            opacity: 1;
+        }
+        .bpm-big .pre-sign {
+            position: absolute;
+            top: -8px;
+            right: -32px;
+            font-size: 1.4rem;
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            transform: scale(0.6);
+            line-height: 1;
+        }
+        .bpm-big .pre-sign.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .bpm-big .pre-sign.up {
+            color: #EF4444;
+        }
+        .bpm-big .pre-sign.down {
+            color: #3B82F6;
+        }
+        .bpm-big .pre-sign.rest {
+            color: var(--rest);
+        }
+        .bpm-mode-label {
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            margin-top: 2px;
+            position: relative;
+            z-index: 1;
+            transition: color var(--transition);
+        }
+        .bpm-mode-label.resting-label {
+            color: var(--rest);
+            font-weight: 600;
+        }
+        .bpm-hero .countdown-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+            font-weight: 700;
+            color: var(--primary);
+            z-index: 10;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            background: var(--surface);
+            border-radius: var(--radius-sm);
+        }
+        .bpm-hero .countdown-overlay.show {
+            opacity: 1;
+        }
+
+        /* 休息进度条（在BPM Hero内） */
+        .rest-progress-wrap {
+            position: absolute;
+            bottom: 6px;
+            left: 12%;
+            right: 12%;
+            height: 3px;
+            background: var(--surface-border);
+            border-radius: 4px;
+            overflow: hidden;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            z-index: 2;
+        }
+        .rest-progress-wrap.show {
+            opacity: 1;
+        }
+        .rest-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--rest), var(--primary-light));
+            border-radius: 4px;
+            transition: width 0.3s linear;
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 8px;
+            left: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            z-index: 5;
+            opacity: 0.7;
+            transition: opacity var(--transition);
+            pointer-events: none;
+        }
+        .status-badge .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+            flex-shrink: 0;
+        }
+        .status-badge .dot.running {
+            background: var(--success);
+            box-shadow: 0 0 18px rgba(34, 197, 94, 0.35);
+            animation: pulse-dot 0.9s infinite;
+        }
+        .status-badge .dot.resting-dot {
+            background: var(--rest);
+            box-shadow: 0 0 18px rgba(14, 165, 233, 0.35);
+            animation: pulse-dot 0.6s infinite;
+        }
+        .status-badge .label {
+            font-size: 0.6rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            letter-spacing: 0.5px;
+            transition: color var(--transition);
+        }
+        .status-badge .label.resting-label {
+            color: var(--rest);
+        }
+        @keyframes pulse-dot {
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.6);
+                opacity: 0.4;
+            }
+        }
+
+        /* ===== Visual Merged ===== */
+        .visual-merged {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 12px;
+            background: var(--bg);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--surface-border);
+            transition: all var(--transition);
+            flex-shrink: 0;
+            margin-bottom: 6px;
+        }
+        .vis-circle {
+            position: relative;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 200px;
+            aspect-ratio: 1/1;
+            background: transparent;
+        }
+        .vis-circle canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            border-radius: var(--radius-sm);
+        }
+
+        /* ===== Beat Progress ===== */
+        .beat-progress-track {
+            width: 100%;
+            height: 12px;
+            background: var(--surface-border);
+            border-radius: 8px;
+            overflow: hidden;
+            flex-shrink: 0;
+            transition: background var(--transition);
+            position: relative;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+        }
+        .beat-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            border-radius: 8px;
+            transition: none;
+            will-change: width;
+            box-shadow: 0 0 22px rgba(124, 58, 237, 0.18);
+            position: relative;
+        }
+        .beat-progress-fill.resting-fill {
+            background: linear-gradient(90deg, var(--rest), var(--primary-light));
+            box-shadow: 0 0 22px rgba(14, 165, 233, 0.20);
+        }
+        .beat-progress-fill::after {
+            content: '';
+            position: absolute;
+            right: -6px;
+            top: 50%;
+            transform: translateY(-50%) scale(0);
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--primary);
+            box-shadow: 0 0 30px rgba(124, 58, 237, 0.35);
+            transition: transform 0.08s cubic-bezier(0.34, 1.56, 0.64, 1),
+                box-shadow 0.08s cubic-bezier(0.34, 1.56, 0.64, 1);
+            will-change: transform;
+        }
+        .beat-progress-fill.show-head::after {
+            transform: translateY(-50%) scale(1.8);
+            box-shadow: 0 0 45px var(--primary-light);
+        }
+        .beat-progress-fill.resting-fill::after {
+            background: var(--rest);
+            box-shadow: 0 0 30px rgba(14, 165, 233, 0.35);
+        }
+        [data-theme="dark"] .beat-progress-fill {
+            box-shadow: 0 0 22px rgba(0, 136, 255, 0.25);
+        }
+        [data-theme="dark"] .beat-progress-fill::after {
+            box-shadow: 0 0 30px rgba(0, 136, 255, 0.40);
+        }
+        [data-theme="dark"] .beat-progress-fill.show-head::after {
+            box-shadow: 0 0 45px rgba(77, 184, 255, 0.50);
+        }
+        [data-theme="dark"] .beat-progress-fill.resting-fill {
+            box-shadow: 0 0 22px rgba(56, 189, 248, 0.25);
+        }
+        [data-theme="dark"] .beat-progress-fill.resting-fill::after {
+            box-shadow: 0 0 30px rgba(56, 189, 248, 0.35);
+        }
+
+        /* ===== Progress Wrap ===== */
+        .progress-wrap {
+            padding: 4px 0 6px 0;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: transparent;
+            margin-bottom: 4px;
+        }
+        .progress-track {
+            flex: 1;
+            height: 8px;
+            background: var(--surface-border);
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            transition: background var(--transition);
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 8px;
+            transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            will-change: width;
+        }
+        .progress-fill.warning {
+            background: linear-gradient(90deg, #f59e0b, #fbbf24);
+        }
+        .progress-fill.danger {
+            background: linear-gradient(90deg, var(--edge), #f87171);
+        }
+        .progress-fill.resting-progress {
+            background: linear-gradient(90deg, var(--rest), var(--primary-light));
+        }
+        .progress-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-variant-numeric: tabular-nums;
+            min-width: 48px;
+            text-align: right;
+            transition: color var(--transition);
+        }
+        .progress-label.left {
+            text-align: left;
+            min-width: 44px;
+        }
+
+        /* ===== Control Bar - 2x2 Grid ===== */
+        .control-bar {
+            padding: 4px 0 4px 0;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all var(--transition);
+            background: transparent;
+            margin-bottom: 2px;
+            flex: 1 1 auto;
+            min-height: 110px;
+        }
+        .btn-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            width: 100%;
+            max-width: 320px;
+            margin: 0 auto;
+        }
+        .btn {
+            padding: 12px 16px;
+            border-radius: var(--btn-radius);
+            border: 1px solid var(--surface-border);
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            touch-action: manipulation;
+            user-select: none;
+            min-height: 50px;
+            background: var(--surface);
+            color: var(--text-primary);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
+            will-change: transform, box-shadow;
+            width: 100%;
+            min-width: 0;
+            flex: 1 1 auto;
+        }
+        .btn:active {
+            transform: scale(0.95);
+        }
+        .btn-start {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #fff;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 24px rgba(124, 58, 237, 0.22);
+        }
+        [data-theme="dark"] .btn-start {
+            box-shadow: 0 2px 24px rgba(0, 136, 255, 0.35);
+        }
+        .btn-start.running {
+            background: var(--edge);
+            border-color: var(--edge);
+            box-shadow: 0 2px 24px rgba(239, 68, 68, 0.22);
+        }
+        .btn-start:active {
+            transform: scale(0.95);
+        }
+        .btn-edge {
+            background: var(--edge-bg);
+            border-color: var(--surface-border);
+            color: var(--edge);
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-edge:active {
+            transform: scale(0.92);
+            background: var(--edge-bg);
+        }
+        .btn-edge .edge-count {
+            font-weight: 700;
+            margin-left: 4px;
+            font-size: 0.9rem;
+        }
+        .btn-edge.flash {
+            border-color: var(--edge);
+            box-shadow: 0 0 40px rgba(239, 68, 68, 0.14);
+            background: var(--edge-bg);
+        }
+        .btn-edge.resting-btn {
+            background: var(--rest-bg);
+            border-color: var(--rest);
+            color: var(--rest);
+            box-shadow: 0 0 30px rgba(14, 165, 233, 0.12);
+        }
+        .btn-params {
+            background: var(--bg);
+            color: var(--text-secondary);
+            border-color: var(--surface-border);
+            font-size: 0.8rem;
+        }
+        .btn-params:active {
+            transform: scale(0.92);
+        }
+        .btn-params.active {
+            border-color: var(--primary);
+            background: var(--primary-bg);
+            color: var(--primary);
+        }
+        .btn-reset {
+            background: var(--bg);
+            color: var(--text-secondary);
+            border-color: var(--surface-border);
+            font-size: 0.8rem;
+        }
+        .btn-reset:active {
+            transform: scale(0.92);
+        }
+
+        /* ===== Data Row ===== */
+        .data-row {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 6px 0 4px 0;
+            flex-shrink: 0;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            letter-spacing: 0.3px;
+            border-top: none;
+            transition: all var(--transition);
+            flex-wrap: wrap;
+            background: transparent;
+            min-height: 30px;
+        }
+        .data-row .data-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .data-row .data-item .data-val {
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            transition: color var(--transition);
+            font-size: 0.8rem;
+        }
+        .data-row .data-item .data-val.highlight {
+            color: var(--primary);
+        }
+
+        /* ===== 模态窗口 ===== */
+        .modal-overlay {
+            position: absolute;
+            inset: 0;
+            background: var(--modal-overlay);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            border-radius: var(--radius);
+            padding: 20px;
+        }
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 24px 20px 20px;
+            max-width: 360px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--surface-border);
+            transform: scale(0.92) translateY(12px);
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+            opacity: 0;
+        }
+        .modal-overlay.open .modal-card {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+        .modal-card .modal-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--surface-border);
+        }
+        .modal-card .modal-title .close-btn {
+            background: var(--bg);
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            font-size: 1.0rem;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-card .modal-title .close-btn:hover {
+            background: var(--surface-border);
+            color: var(--text-primary);
+        }
+        .modal-card .modal-body {
+            padding: 4px 0;
+        }
+
+        /* ===== 模式列表 ===== */
+        .mode-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .mode-list-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: var(--bg);
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        .mode-list-item:hover {
+            background: var(--primary-bg);
+            border-color: var(--primary);
+            color: var(--text-primary);
+        }
+        .mode-list-item.active {
+            background: var(--primary-bg);
+            border-color: var(--primary);
+            color: var(--primary);
+            font-weight: 600;
+        }
+        .mode-list-item .mode-icon {
+            font-size: 1.2rem;
+            margin-right: 10px;
+        }
+        .mode-list-item .mode-label {
+            flex: 1;
+        }
+        .mode-list-item .mode-check {
+            color: var(--primary);
+            font-weight: 700;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        .mode-list-item.active .mode-check {
+            opacity: 1;
+        }
+
+        /* ===== 参数窗口 ===== */
+        .params-grid-modal {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            padding: 2px 0;
+        }
+        .params-grid-modal .param-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .params-grid-modal .param-group label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            letter-spacing: 0.4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .params-grid-modal .param-group .param-value {
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+        .params-grid-modal .param-group input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 6px;
+            background: var(--surface-border);
+            outline: none;
+            padding: 0;
+            border: none;
+            transition: background var(--transition);
+        }
+        .params-grid-modal .param-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            box-shadow: 0 2px 12px rgba(124, 58, 237, 0.25);
+            border: 2px solid var(--surface);
+        }
+        .params-grid-modal .param-group input[type="range"]::-moz-range-thumb {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            border: 2px solid var(--surface);
+        }
+        .params-grid-modal .param-group .range-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.5rem;
+            color: var(--text-muted);
+        }
+        .params-grid-modal .param-group input[type="number"],
+        .params-grid-modal .param-group select {
+            width: 100%;
+            padding: 6px 10px;
+            border-radius: var(--btn-radius);
+            border: 1px solid var(--surface-border);
+            background: var(--surface);
+            color: var(--text-primary);
+            font-size: 0.8rem;
+            font-family: inherit;
+            outline: none;
+            transition: all var(--transition);
+            min-height: 38px;
+        }
+        .params-grid-modal .param-group input:focus,
+        .params-grid-modal .param-group select:focus {
+            border-color: var(--primary);
+        }
+        .params-grid-modal .param-group .bpm-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 2px;
+        }
+        .params-grid-modal .param-group .bpm-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: var(--primary-bg);
+            padding: 3px 10px 3px 12px;
+            border-radius: 14px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: var(--primary);
+            border: 1px solid rgba(124, 58, 237, 0.08);
+            transition: all var(--transition);
+            min-height: 30px;
+        }
+        .params-grid-modal .param-group .bpm-tag .del {
+            cursor: pointer;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            line-height: 1;
+            padding: 0 2px;
+        }
+        .params-grid-modal .param-group .bpm-tag .del:hover {
+            color: var(--edge);
+        }
+        .params-grid-modal .param-group .add-bpm-row {
+            display: flex;
+            gap: 5px;
+            margin-top: 3px;
+        }
+        .params-grid-modal .param-group .add-bpm-row input {
+            flex: 1;
+            min-width: 20px;
+            padding: 4px 8px;
+            font-size: 0.7rem;
+            border-radius: var(--btn-radius);
+            border: 1px solid var(--surface-border);
+            background: var(--surface);
+            color: var(--text-primary);
+            transition: all var(--transition);
+            min-height: 34px;
+        }
+        .params-grid-modal .param-group .add-bpm-row .btn-sm {
+            padding: 4px 16px;
+            border-radius: var(--btn-radius);
+            border: none;
+            background: var(--primary);
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition);
+            min-height: 34px;
+        }
+        .params-grid-modal .param-group .radio-group,
+        .params-grid-modal .param-group .waveform-btns {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+        .params-grid-modal .param-group .radio-opt,
+        .params-grid-modal .param-group .wf-btn {
+            padding: 4px 14px;
+            border-radius: var(--btn-radius);
+            border: 1px solid var(--surface-border);
+            background: var(--surface);
+            color: var(--text-secondary);
+            font-size: 0.7rem;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.15s ease;
+            min-height: 32px;
+            display: flex;
+            align-items: center;
+        }
+        .params-grid-modal .param-group .radio-opt.active,
+        .params-grid-modal .param-group .wf-btn.active {
+            background: var(--primary-bg);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 18px;
+            padding-top: 14px;
+            border-top: 1px solid var(--surface-border);
+        }
+        .modal-actions .btn-modal {
+            flex: 1;
+            padding: 12px 18px;
+            border-radius: var(--btn-radius);
+            border: 1px solid var(--surface-border);
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            background: var(--surface);
+            color: var(--text-secondary);
+        }
+        .modal-actions .btn-modal:active {
+            transform: scale(0.95);
+        }
+        .modal-actions .btn-modal.primary {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #fff;
+            box-shadow: 0 2px 16px rgba(124, 58, 237, 0.20);
+        }
+        [data-theme="dark"] .modal-actions .btn-modal.primary {
+            box-shadow: 0 2px 16px rgba(0, 136, 255, 0.30);
+        }
+        .modal-actions .btn-modal.primary:active {
+            transform: scale(0.95);
+        }
+
+        /* ===== Toast ===== */
+        .toast-float {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.85);
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+            padding: 14px 28px;
+            box-shadow: var(--shadow-xl);
+            font-size: 1.0rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            z-index: 200;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            background: rgba(var(--surface-rgb, 255, 255, 255), 0.92);
+            text-align: center;
+            min-width: 160px;
+            white-space: nowrap;
+        }
+        [data-theme="dark"] .toast-float {
+            background: rgba(20, 20, 28, 0.92);
+        }
+        .toast-float.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            pointer-events: none;
+        }
+        .toast-float .toast-icon {
+            margin-right: 8px;
+        }
+        .toast-float .toast-sub {
+            font-size: 0.7rem;
+            font-weight: 400;
+            color: var(--text-muted);
+            display: block;
+            margin-top: 2px;
+        }
+
+        /* ===== Footer ===== */
+        .footer-bar {
+            text-align: center;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            padding: 6px 0 2px 0;
+            flex-shrink: 0;
+            opacity: 0.55;
+            letter-spacing: 0.5px;
+            transition: all var(--transition);
+            border-top: none;
+            background: transparent;
+            margin-top: 0px;
+            min-height: 26px;
+        }
+        .footer-bar a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        /* ===== Responsive ===== */
+        @media (max-width:440px) {
+            body {
+                padding: 6px;
+            }
+            .app {
+                padding: 8px 10px 4px 10px;
+                border-radius: 16px;
+            }
+            .app-header {
+                padding: 6px 0 12px 0;
+                min-height: 48px;
+            }
+            .logo-icon {
+                font-size: 28px;
+            }
+            .app-header .title {
+                font-size: 1.4rem;
+            }
+            .app-header .title small {
+                font-size: 0.55rem;
+                padding: 1px 10px;
+            }
+            .bpm-big {
+                font-size: 3.6rem;
+            }
+            .app.immersive .bpm-big {
+                font-size: 4.8rem;
+            }
+            .bpm-big .unit {
+                font-size: 0.85rem;
+            }
+            .bpm-big .pre-sign {
+                font-size: 1.2rem;
+                right: -28px;
+                top: -6px;
+            }
+            .bpm-big .rest-icon {
+                font-size: 1.3rem;
+            }
+            .vis-circle {
+                max-width: 170px;
+            }
+            .app.immersive .vis-circle {
+                max-width: 220px;
+            }
+            .visual-merged {
+                padding: 12px 10px;
+                gap: 10px;
+            }
+            .btn-grid {
+                max-width: 280px;
+                gap: 8px;
+            }
+            .btn {
+                font-size: 0.75rem;
+                min-height: 44px;
+                padding: 10px 14px;
+            }
+            .btn-start {
+                font-size: 0.8rem;
+                padding: 10px 16px;
+                min-height: 46px;
+            }
+            .btn-edge {
+                font-size: 0.7rem;
+                min-height: 44px;
+                padding: 10px 14px;
+            }
+            .btn-params,
+            .btn-reset {
+                font-size: 0.7rem;
+                min-height: 44px;
+                padding: 10px 14px;
+            }
+            .data-row {
+                font-size: 0.6rem;
+                gap: 14px;
+                min-height: 26px;
+            }
+            .data-row .data-item .data-val {
+                font-size: 0.7rem;
+            }
+            .progress-label {
+                font-size: 0.6rem;
+                min-width: 40px;
+            }
+            .bpm-hero .countdown-overlay {
+                font-size: 4.2rem;
+            }
+            .bpm-hero {
+                padding: 8px 0 6px 0;
+                min-height: 90px;
+            }
+            .control-bar {
+                min-height: 100px;
+                padding: 4px 0 4px 0;
+            }
+            .light-pull {
+                width: 32px;
+                height: 48px;
+            }
+            .pull-rope {
+                height: 22px;
+            }
+            .light-pull.pulled .pull-rope {
+                height: 36px;
+            }
+            .pull-ring {
+                width: 22px;
+                height: 22px;
+                border-width: 2px;
+            }
+            .pull-ring .ring-inner {
+                width: 7px;
+                height: 7px;
+            }
+            .light-pull.pulled .pull-ring {
+                transform: translateY(16px) scale(0.92);
+            }
+            .light-pull .pull-tooltip {
+                display: none;
+            }
+            .status-badge .dot {
+                width: 8px;
+                height: 8px;
+            }
+            .status-badge .label {
+                font-size: 0.5rem;
+            }
+            .beat-progress-track {
+                height: 10px;
+            }
+            .progress-track {
+                height: 6px;
+            }
+            .btn-mode-switch {
+                font-size: 0.65rem;
+                padding: 6px 16px;
+                min-height: 32px;
+            }
+            .mode-current-display {
+                font-size: 0.7rem;
+            }
+            .mode-current-display .mode-name {
+                font-size: 0.8rem;
+                padding: 1px 12px;
+            }
+            .modal-card {
+                padding: 18px 14px 16px;
+                max-width: 320px;
+            }
+            .mode-list-item {
+                padding: 10px 12px;
+                font-size: 0.8rem;
+            }
+            .toast-float {
+                font-size: 0.85rem;
+                padding: 12px 20px;
+                min-width: 130px;
+            }
+            .footer-bar {
+                font-size: 0.55rem;
+                padding: 4px 0 2px 0;
+                min-height: 22px;
+            }
+            .mode-selector-row {
+                padding: 4px 0 8px 0;
+                margin-bottom: 4px;
+            }
+            .beat-progress-fill::after {
+                width: 16px;
+                height: 16px;
+                right: -5px;
+            }
+            .btn-edge .edge-count {
+                font-size: 0.8rem;
+            }
+            .app.immersive .bpm-hero {
+                min-height: 100px;
+            }
+            .app.immersive .visual-merged {
+                padding: 10px 6px;
+            }
+            .rest-progress-wrap {
+                bottom: 4px;
+                left: 8%;
+                right: 8%;
+                height: 2px;
+            }
+        }
+        @media (max-width:380px) {
+            body {
+                padding: 4px;
+            }
+            .app {
+                padding: 6px 6px 2px 6px;
+                border-radius: 12px;
+            }
+            .app-header {
+                padding: 4px 0 8px 0;
+                min-height: 40px;
+            }
+            .logo-icon {
+                font-size: 22px;
+            }
+            .app-header .title {
+                font-size: 1.2rem;
+            }
+            .app-header .title small {
+                font-size: 0.45rem;
+                padding: 0 8px;
+            }
+            .bpm-big {
+                font-size: 3.0rem;
+            }
+            .app.immersive .bpm-big {
+                font-size: 4.0rem;
+            }
+            .bpm-big .unit {
+                font-size: 0.7rem;
+            }
+            .bpm-big .pre-sign {
+                font-size: 1.0rem;
+                right: -24px;
+                top: -4px;
+            }
+            .bpm-big .rest-icon {
+                font-size: 1.1rem;
+            }
+            .vis-circle {
+                max-width: 140px;
+            }
+            .app.immersive .vis-circle {
+                max-width: 180px;
+            }
+            .visual-merged {
+                padding: 8px 6px;
+                gap: 8px;
+            }
+            .btn-grid {
+                max-width: 240px;
+                gap: 6px;
+            }
+            .btn {
+                font-size: 0.65rem;
+                min-height: 38px;
+                padding: 8px 10px;
+            }
+            .btn-start {
+                font-size: 0.7rem;
+                padding: 8px 12px;
+                min-height: 40px;
+            }
+            .btn-edge {
+                font-size: 0.6rem;
+                min-height: 38px;
+                padding: 8px 10px;
+            }
+            .btn-params,
+            .btn-reset {
+                font-size: 0.6rem;
+                min-height: 38px;
+                padding: 8px 10px;
+            }
+            .data-row {
+                font-size: 0.5rem;
+                gap: 10px;
+                min-height: 22px;
+            }
+            .data-row .data-item .data-val {
+                font-size: 0.6rem;
+            }
+            .progress-label {
+                font-size: 0.5rem;
+                min-width: 34px;
+            }
+            .bpm-hero .countdown-overlay {
+                font-size: 3.6rem;
+            }
+            .bpm-hero {
+                padding: 6px 0 4px 0;
+                min-height: 76px;
+            }
+            .control-bar {
+                min-height: 80px;
+                padding: 2px 0 2px 0;
+            }
+            .light-pull {
+                width: 28px;
+                height: 40px;
+            }
+            .pull-rope {
+                height: 18px;
+            }
+            .light-pull.pulled .pull-rope {
+                height: 30px;
+            }
+            .pull-ring {
+                width: 18px;
+                height: 18px;
+                border-width: 1.5px;
+            }
+            .pull-ring .ring-inner {
+                width: 6px;
+                height: 6px;
+            }
+            .light-pull.pulled .pull-ring {
+                transform: translateY(12px) scale(0.92);
+            }
+            .status-badge .dot {
+                width: 7px;
+                height: 7px;
+            }
+            .status-badge .label {
+                font-size: 0.45rem;
+            }
+            .beat-progress-track {
+                height: 8px;
+            }
+            .progress-track {
+                height: 5px;
+            }
+            .btn-mode-switch {
+                font-size: 0.55rem;
+                padding: 4px 12px;
+                min-height: 28px;
+            }
+            .mode-current-display {
+                font-size: 0.6rem;
+            }
+            .mode-current-display .mode-name {
+                font-size: 0.7rem;
+                padding: 0 10px;
+            }
+            .modal-card {
+                padding: 14px 10px 10px;
+                max-width: 280px;
+            }
+            .mode-list-item {
+                padding: 8px 10px;
+                font-size: 0.7rem;
+            }
+            .toast-float {
+                font-size: 0.75rem;
+                padding: 10px 16px;
+                min-width: 110px;
+            }
+            .footer-bar {
+                font-size: 0.5rem;
+                padding: 2px 0 2px 0;
+                min-height: 18px;
+            }
+            .mode-selector-row {
+                padding: 2px 0 6px 0;
+                margin-bottom: 2px;
+            }
+            .beat-progress-fill::after {
+                width: 14px;
+                height: 14px;
+                right: -4px;
+            }
+            .btn-edge .edge-count {
+                font-size: 0.7rem;
+            }
+            .app.immersive .bpm-hero {
+                min-height: 80px;
+            }
+            .rest-progress-wrap {
+                bottom: 3px;
+                left: 6%;
+                right: 6%;
+                height: 2px;
+            }
+        }
+        @media (max-height:740px) {
+            .app-header {
+                padding: 4px 0 10px 0;
+                min-height: 44px;
+            }
+            .logo-icon {
+                font-size: 26px;
+            }
+            .app-header .title {
+                font-size: 1.3rem;
+            }
+            .app-header .title small {
+                font-size: 0.5rem;
+                padding: 0 8px;
+            }
+            .bpm-big {
+                font-size: 3.4rem;
+            }
+            .app.immersive .bpm-big {
+                font-size: 4.4rem;
+            }
+            .vis-circle {
+                max-width: 150px;
+            }
+            .app.immersive .vis-circle {
+                max-width: 200px;
+            }
+            .visual-merged {
+                padding: 10px 8px;
+                gap: 8px;
+            }
+            .btn-grid {
+                max-width: 260px;
+                gap: 6px;
+            }
+            .btn {
+                min-height: 40px;
+                padding: 8px 12px;
+                font-size: 0.7rem;
+            }
+            .btn-start {
+                font-size: 0.75rem;
+                padding: 8px 14px;
+                min-height: 42px;
+            }
+            .btn-edge {
+                font-size: 0.65rem;
+                min-height: 40px;
+                padding: 8px 12px;
+            }
+            .btn-params,
+            .btn-reset {
+                font-size: 0.65rem;
+                min-height: 40px;
+                padding: 8px 12px;
+            }
+            .bpm-hero {
+                padding: 6px 0 4px 0;
+                min-height: 80px;
+            }
+            .control-bar {
+                min-height: 90px;
+                padding: 2px 0 4px 0;
+            }
+            .data-row {
+                font-size: 0.55rem;
+                gap: 12px;
+                padding: 4px 0 2px 0;
+                min-height: 22px;
+            }
+            .data-row .data-item .data-val {
+                font-size: 0.65rem;
+            }
+            .progress-label {
+                font-size: 0.55rem;
+                min-width: 36px;
+            }
+            .light-pull {
+                width: 30px;
+                height: 44px;
+            }
+            .pull-rope {
+                height: 20px;
+            }
+            .light-pull.pulled .pull-rope {
+                height: 34px;
+            }
+            .pull-ring {
+                width: 20px;
+                height: 20px;
+                border-width: 2px;
+            }
+            .pull-ring .ring-inner {
+                width: 7px;
+                height: 7px;
+            }
+            .light-pull.pulled .pull-ring {
+                transform: translateY(14px) scale(0.92);
+            }
+            .status-badge .dot {
+                width: 8px;
+                height: 8px;
+            }
+            .beat-progress-track {
+                height: 10px;
+            }
+            .progress-track {
+                height: 6px;
+            }
+            .bpm-big .pre-sign {
+                font-size: 1.1rem;
+                right: -26px;
+                top: -5px;
+            }
+            .bpm-big .rest-icon {
+                font-size: 1.2rem;
+            }
+            .btn-mode-switch {
+                font-size: 0.6rem;
+                padding: 5px 14px;
+                min-height: 30px;
+            }
+            .mode-current-display {
+                font-size: 0.65rem;
+            }
+            .mode-current-display .mode-name {
+                font-size: 0.75rem;
+                padding: 1px 12px;
+            }
+            .modal-card {
+                padding: 16px 14px 14px;
+            }
+            .footer-bar {
+                font-size: 0.5rem;
+                padding: 4px 0 2px 0;
+                min-height: 20px;
+            }
+            .mode-selector-row {
+                padding: 4px 0 6px 0;
+                margin-bottom: 4px;
+            }
+            .beat-progress-fill::after {
+                width: 16px;
+                height: 16px;
+                right: -5px;
+            }
+            .app.immersive .bpm-hero {
+                min-height: 90px;
+            }
+            .app.immersive .visual-merged {
+                padding: 8px 6px;
+            }
+            .rest-progress-wrap {
+                bottom: 4px;
+                left: 10%;
+                right: 10%;
+                height: 2px;
+            }
+        }
+        @media (max-height:640px) {
+            .app-header {
+                padding: 2px 0 8px 0;
+                min-height: 36px;
+            }
+            .logo-icon {
+                font-size: 22px;
+            }
+            .app-header .title {
+                font-size: 1.1rem;
+            }
+            .app-header .title small {
+                font-size: 0.45rem;
+                padding: 0 6px;
+            }
+            .bpm-big {
+                font-size: 2.8rem;
+            }
+            .app.immersive .bpm-big {
+                font-size: 3.6rem;
+            }
+            .vis-circle {
+                max-width: 120px;
+            }
+            .app.immersive .vis-circle {
+                max-width: 160px;
+            }
+            .visual-merged {
+                padding: 6px 6px;
+                gap: 6px;
+            }
+            .btn-grid {
+                max-width: 220px;
+                gap: 5px;
+            }
+            .btn {
+                min-height: 34px;
+                padding: 6px 10px;
+                font-size: 0.6rem;
+            }
+            .btn-start {
+                font-size: 0.65rem;
+                padding: 6px 10px;
+                min-height: 36px;
+            }
+            .btn-edge {
+                font-size: 0.55rem;
+                min-height: 34px;
+                padding: 6px 10px;
+            }
+            .btn-params,
+            .btn-reset {
+                font-size: 0.55rem;
+                min-height: 34px;
+                padding: 6px 10px;
+            }
+            .bpm-hero {
+                padding: 4px 0 2px 0;
+                min-height: 64px;
+            }
+            .control-bar {
+                min-height: 72px;
+                padding: 0px 0 2px 0;
+            }
+            .data-row {
+                font-size: 0.45rem;
+                gap: 8px;
+                padding: 2px 0 0px 0;
+                min-height: 18px;
+            }
+            .data-row .data-item .data-val {
+                font-size: 0.55rem;
+            }
+            .progress-label {
+                font-size: 0.45rem;
+                min-width: 30px;
+            }
+            .light-pull {
+                width: 26px;
+                height: 36px;
+            }
+            .pull-rope {
+                height: 16px;
+            }
+            .light-pull.pulled .pull-rope {
+                height: 26px;
+            }
+            .pull-ring {
+                width: 16px;
+                height: 16px;
+                border-width: 1.5px;
+            }
+            .pull-ring .ring-inner {
+                width: 5px;
+                height: 5px;
+            }
+            .light-pull.pulled .pull-ring {
+                transform: translateY(10px) scale(0.92);
+            }
+            .status-badge .dot {
+                width: 6px;
+                height: 6px;
+            }
+            .status-badge .label {
+                font-size: 0.4rem;
+            }
+            .beat-progress-track {
+                height: 8px;
+            }
+            .progress-track {
+                height: 4px;
+            }
+            .bpm-big .pre-sign {
+                font-size: 0.9rem;
+                right: -20px;
+                top: -3px;
+            }
+            .bpm-big .rest-icon {
+                font-size: 1.0rem;
+            }
+            .btn-mode-switch {
+                font-size: 0.5rem;
+                padding: 4px 10px;
+                min-height: 24px;
+            }
+            .mode-current-display {
+                font-size: 0.55rem;
+            }
+            .mode-current-display .mode-name {
+                font-size: 0.65rem;
+                padding: 0 8px;
+            }
+            .modal-card {
+                padding: 12px 10px 10px;
+                max-width: 260px;
+            }
+            .mode-list-item {
+                padding: 6px 10px;
+                font-size: 0.65rem;
+            }
+            .toast-float {
+                font-size: 0.65rem;
+                padding: 8px 14px;
+                min-width: 100px;
+            }
+            .footer-bar {
+                font-size: 0.45rem;
+                padding: 2px 0 2px 0;
+                min-height: 16px;
+            }
+            .mode-selector-row {
+                padding: 2px 0 4px 0;
+                margin-bottom: 2px;
+            }
+            .beat-progress-fill::after {
+                width: 14px;
+                height: 14px;
+                right: -4px;
+            }
+            .btn-edge .edge-count {
+                font-size: 0.6rem;
+            }
+            .app.immersive .bpm-hero {
+                min-height: 72px;
+            }
+            .app.immersive .visual-merged {
+                padding: 4px 4px;
+            }
+            .rest-progress-wrap {
+                bottom: 2px;
+                left: 8%;
+                right: 8%;
+                height: 2px;
+            }
+        }
+        .hidden {
+            display: none !important;
+        }
+
+        .modal-card::-webkit-scrollbar {
+            width: 4px;
+        }
+        .modal-card::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .modal-card::-webkit-scrollbar-thumb {
+            background: var(--surface-border);
+            border-radius: 4px;
+        }
+        .modal-card::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app" id="app" data-theme="light">
+
+        <!-- Toast -->
+        <div class="toast-float" id="toastFloat">
+            <span class="toast-icon">🔊</span>
+            <span id="toastText">切换至固定模式</span>
+            <span class="toast-sub" id="toastSub">节奏模式已更新</span>
+        </div>
+
+        <header class="app-header">
+            <div class="header-left">
+                <span class="logo-icon">🌀</span>
+                <span class="title">节奏·边缘 <small>XrayPapa</small></span>
+            </div>
+            <div class="header-right">
+                <div class="light-pull" id="lightPull" title="拉绳切换主题">
+                    <div class="pull-rope"></div>
+                    <div class="pull-ring" id="pullRing">
+                        <div class="ring-inner"></div>
+                    </div>
+                    <span class="pull-tooltip">拉绳</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- 模式选择行 -->
+        <div class="mode-selector-row" id="modeSelectorRow">
+            <div class="mode-current-display">
+                <span>当前模式</span>
+                <span class="mode-name" id="currentModeDisplay">固定</span>
+            </div>
+            <button class="btn-mode-switch" id="btnModeSwitch">
+                <span class="icon">🔄</span> 切换节奏模式
+            </button>
+        </div>
+
+        <div class="bpm-hero" id="bpmHero">
+            <div class="bpm-ring" id="bpmRing"></div>
+            <div class="status-badge" id="statusBadge">
+                <span class="dot" id="statusDot"></span>
+                <span class="label" id="statusLabel">待机</span>
+            </div>
+            <div class="bpm-big" id="bpmBig">
+                <span id="bpmNumber">120</span>
+                <span class="unit">BPM</span>
+                <span class="rest-icon" id="restIcon">🧘</span>
+                <span class="pre-sign" id="preSign">↑</span>
+            </div>
+            <div class="bpm-mode-label" id="bpmModeLabel">固定节奏</div>
+            <div class="countdown-overlay" id="countdownOverlay">3</div>
+            <div class="rest-progress-wrap" id="restProgressWrap">
+                <div class="rest-progress-fill" id="restProgressFill"></div>
+            </div>
+        </div>
+
+        <div class="visual-merged" id="visualMerged">
+            <div class="vis-circle" id="visCircle">
+                <canvas id="pulseCanvas"></canvas>
+            </div>
+            <div class="beat-progress-track">
+                <div class="beat-progress-fill" id="beatProgressFill"></div>
+            </div>
+        </div>
+
+        <div class="progress-wrap" id="progressWrap">
+            <span class="progress-label left" id="timeLabel">00:00</span>
+            <div class="progress-track">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <span class="progress-label" id="timeRemain">—</span>
+        </div>
+
+        <!-- 控制栏 - 2x2 Grid -->
+        <div class="control-bar" id="controlBar">
+            <div class="btn-grid">
+                <button class="btn btn-start" id="btnStart">▶ 开始</button>
+                <button class="btn btn-edge" id="btnEdge">🔴 边缘 <span class="edge-count" id="edgeCount">0</span></button>
+                <button class="btn btn-params" id="btnParams" title="高级参数">⚙ 参数</button>
+                <button class="btn btn-reset" id="btnReset">↺ 重置</button>
+            </div>
+        </div>
+
+        <div class="data-row" id="dataRow">
+            <span class="data-item">边缘 <span class="data-val highlight" id="dataEdge">0</span></span>
+            <span class="data-item">运行 <span class="data-val" id="dataTime">00:00</span></span>
+            <span class="data-item">均 BPM <span class="data-val" id="dataAvg">—</span></span>
+            <span class="data-item">最高 <span class="data-val" id="dataMax">—</span></span>
+        </div>
+
+        <!-- 底部 -->
+        <div class="footer-bar">@XrayPapaGame · <a href="#" target="_blank">辅助工具×节拍器</a></div>
+
+        <!-- ===== 模式选择模态 ===== -->
+        <div class="modal-overlay" id="modalMode">
+            <div class="modal-card">
+                <div class="modal-title">
+                    <span>(x_x) 选择节奏模式</span>
+                    <button class="close-btn" id="modalModeClose">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div class="mode-list" id="modeList"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== 高级参数模态 ===== -->
+        <div class="modal-overlay" id="modalParams">
+            <div class="modal-card">
+                <div class="modal-title">
+                    <span id="paramsModalTitle">⚙ 高级参数 · 固定</span>
+                    <button class="close-btn" id="modalParamsClose">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div class="params-grid-modal" id="paramsGridModal"></div>
+                    <div class="modal-actions">
+                        <button class="btn-modal" id="paramsCancel">取消</button>
+                        <button class="btn-modal primary" id="paramsConfirm">✅ 确认生效</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            // =========================================================================
+            //  一、缓动 & 工具
+            // =========================================================================
+            const Easing = {
+                easeOutQuart: t => 1 - Math.pow(1 - t, 4),
+                easeOutCubic: t => 1 - Math.pow(1 - t, 3),
+                easeOutBack: t => { const c1 = 1.70158,
+                        c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); },
+                easeOutElastic: t => { if (t === 0 || t === 1) return t; const c4 = (2 * Math.PI) / 3; return Math.pow(2,
+                        -10 * t) * Math.sin((t * 10 - 0.75) * c4) + 1; },
+                spring: (t, damping = 0.08) => 1 - Math.exp(-t * 5) * Math.cos(t * 12),
+                sine: t => (Math.sin(t * 2 * Math.PI - Math.PI / 2) + 1) / 2,
+                expDecay: (t, rate = 0.06) => Math.exp(-t * rate),
+                linear: t => t,
+            };
+
+            // =========================================================================
+            //  二、DOM 引用
+            // =========================================================================
+            const $ = id => document.getElementById(id);
+            const app = $('app');
+            const bpmNumber = $('bpmNumber');
+            const preSign = $('preSign');
+            const restIcon = $('restIcon');
+            const bpmModeLabel = $('bpmModeLabel');
+            const bpmRing = $('bpmRing');
+            const statusDot = $('statusDot');
+            const statusLabel = $('statusLabel');
+            const btnStart = $('btnStart');
+            const btnEdge = $('btnEdge');
+            const edgeCount = $('edgeCount');
+            const btnReset = $('btnReset');
+            const btnParams = $('btnParams');
+            const btnModeSwitch = $('btnModeSwitch');
+            const currentModeDisplay = $('currentModeDisplay');
+            const paramsGridModal = $('paramsGridModal');
+            const paramsModalTitle = $('paramsModalTitle');
+            const modalMode = $('modalMode');
+            const modalModeClose = $('modalModeClose');
+            const modalParams = $('modalParams');
+            const modalParamsClose = $('modalParamsClose');
+            const paramsCancel = $('paramsCancel');
+            const paramsConfirm = $('paramsConfirm');
+            const modeList = $('modeList');
+            const toastFloat = $('toastFloat');
+            const toastText = $('toastText');
+            const toastSub = $('toastSub');
+            const pulseCanvas = $('pulseCanvas');
+            const ctx = pulseCanvas.getContext('2d');
+            const beatProgressFill = $('beatProgressFill');
+            const progressFill = $('progressFill');
+            const timeLabel = $('timeLabel');
+            const timeRemain = $('timeRemain');
+            const countdownOverlay = $('countdownOverlay');
+            const dataEdge = $('dataEdge');
+            const dataTime = $('dataTime');
+            const dataAvg = $('dataAvg');
+            const dataMax = $('dataMax');
+            const visCircle = $('visCircle');
+            const bpmHero = $('bpmHero');
+            const bpmBig = $('bpmBig');
+            const lightPull = $('lightPull');
+            const pullRing = $('pullRing');
+            const restProgressWrap = $('restProgressWrap');
+            const restProgressFill = $('restProgressFill');
+
+            // =========================================================================
+            //  三、主题 + 拉灯绳
+            // =========================================================================
+            let currentTheme = 'light';
+            let isPulling = false;
+
+            function playClickSound() {
+                try {
+                    const ctx = new(window.AudioContext || window.webkitAudioContext)();
+                    if (ctx.state === 'suspended') ctx.resume();
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(1200, ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(600, ctx.currentTime + 0.035);
+                    gain.gain.setValueAtTime(0.06, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.045);
+                    osc.start(ctx.currentTime);
+                    osc.stop(ctx.currentTime + 0.045);
+                } catch (_) {}
+            }
+
+            function setTheme(theme) {
+                currentTheme = theme;
+                app.dataset.theme = theme;
+                renderPulse();
+            }
+
+            function toggleTheme() {
+                if (isPulling) return;
+                isPulling = true;
+                lightPull.classList.add('pulled');
+                playClickSound();
+                setTimeout(() => {
+                    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                    setTheme(newTheme);
+                    lightPull.classList.remove('pulled');
+                    isPulling = false;
+                }, 280);
+            }
+
+            lightPull.addEventListener('click', toggleTheme);
+            lightPull.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                toggleTheme();
+            });
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 't' || e.key === 'T') {
+                    e.preventDefault();
+                    toggleTheme();
+                }
+            });
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) setTheme('dark');
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => setTheme(e.matches ?
+                'dark' : 'light'));
+
+            // ===== 颜色系统 =====
+            function getPrimary(alpha = 1) {
+                if (currentTheme === 'dark') return `rgba(0, 136, 255, ${alpha})`;
+                return `rgba(124, 58, 237, ${alpha})`;
+            }
+
+            function getPrimaryLight(alpha = 1) {
+                if (currentTheme === 'dark') return `rgba(77, 184, 255, ${alpha})`;
+                return `rgba(167, 139, 250, ${alpha})`;
+            }
+
+            function getPrimaryGlow(alpha = 1) {
+                if (currentTheme === 'dark') return `rgba(0, 136, 255, ${alpha})`;
+                return `rgba(124, 58, 237, ${alpha})`;
+            }
+
+            function getPrimaryVivid(alpha = 1) {
+                if (currentTheme === 'dark') return `rgba(0, 150, 255, ${alpha})`;
+                return `rgba(139, 92, 246, ${alpha})`;
+            }
+
+            function getEdge(alpha = 1) {
+                const isDark = currentTheme === 'dark';
+                const r = isDark ? 248 : 239,
+                    g = isDark ? 113 : 68,
+                    b = isDark ? 113 : 68;
+                return `rgba(${r},${g},${b},${alpha})`;
+            }
+
+            function getRest(alpha = 1) {
+                if (currentTheme === 'dark') return `rgba(56, 189, 248, ${alpha})`;
+                return `rgba(14, 165, 233, ${alpha})`;
+            }
+
+            function getWhite(alpha = 1) {
+                return `rgba(255, 255, 255, ${alpha})`;
+            }
+
+            function getCoreColor(alpha = 1) {
+                if (currentTheme === 'dark') return `rgba(220, 240, 255, ${alpha})`;
+                return `rgba(255, 255, 255, ${alpha})`;
+            }
+
+            // =========================================================================
+            //  四、音频引擎
+            // =========================================================================
+            let audioCtx = null;
+
+            function ensureAudio() {
+                if (!audioCtx) audioCtx = new(window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                return audioCtx;
+            }
+
+            function playTick(freq = 880, vol = 0.10, dur = 0.035) {
+                try {
+                    const ctx = ensureAudio();
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.type = 'sine';
+                    osc.frequency.value = freq;
+                    gain.gain.setValueAtTime(vol, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+                    osc.start(ctx.currentTime);
+                    osc.stop(ctx.currentTime + dur);
+                } catch (_) {}
+            }
+
+            function playClick() {
+                try {
+                    const ctx = ensureAudio();
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.type = 'square';
+                    osc.frequency.value = 600;
+                    gain.gain.setValueAtTime(0.05, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+                    osc.start(ctx.currentTime);
+                    osc.stop(ctx.currentTime + 0.05);
+                } catch (_) {}
+            }
+
+            // =========================================================================
+            //  五、Living Rhythm Engine — 核心 (增强版)
+            // =========================================================================
+
+            const LRE = {
+                now: 0,
+                delta: 0,
+                energy: 0,
+                energyTarget: 0,
+                energyVelocity: 0,
+                momentum: 0,
+                momentumTarget: 0,
+                beatTime: 0,
+                beatInterval: 500,
+                beatPhase: 0,
+                lastBeatTime: 0,
+                running: false,
+                mode: 'fixed',
+                bpm: 120,
+                targetBpm: 120,
+                edgeCount: 0,
+                elapsed: 0,
+                totalDuration: 600,
+                maxBpm: 0,
+                bpmSum: 0,
+                bpmCount: 0,
+                // ---- 休息状态 ----
+                resting: false,
+                restPhase: null, // 'down' | 'hold' | 'up'
+                restStartTime: 0,
+                restOriginalBpm: 120,
+                restCurrentBpm: 120,
+                restDownDuration: 5000, // 5秒下降
+                restHoldDuration: 15000, // 15秒保持0
+                restUpDuration: 5000, // 5秒上升
+                restTotalDuration: 25000, // 25秒总休息
+                restProgress: 0, // 0-1
+                restPhaseStartTime: 0,
+                restPhaseProgress: 0,
+                restTriggeredAt: 0,
+                // ---- 脉冲层 ----
+                pulses: [
+                    { scale: 1, alpha: 0, blur: 0, progress: 0, active: false, startTime: 0, duration: 70,
+                        targetScale: 1.12, targetAlpha: 0.55, targetBlur: 6, thickness: 0.10 },
+                    { scale: 1, alpha: 0, blur: 0, progress: 0, active: false, startTime: 0, duration: 130,
+                        targetScale: 1.28, targetAlpha: 0.42, targetBlur: 16, thickness: 0.075 },
+                    { scale: 1, alpha: 0, blur: 0, progress: 0, active: false, startTime: 0, duration: 230,
+                        targetScale: 1.52, targetAlpha: 0.28, targetBlur: 30, thickness: 0.050 },
+                    { scale: 1, alpha: 0, blur: 0, progress: 0, active: false, startTime: 0, duration: 380,
+                        targetScale: 1.85, targetAlpha: 0.18, targetBlur: 48, thickness: 0.032 },
+                    { scale: 1, alpha: 0, blur: 0, progress: 0, active: false, startTime: 0, duration: 580,
+                        targetScale: 2.25, targetAlpha: 0.10, targetBlur: 70, thickness: 0.018 },
+                ],
+                canvasGlow: 0,
+                canvasGlowTarget: 0,
+                dom: {
+                    heroScale: 1,
+                    heroY: 0,
+                    heroShadow: 0,
+                    bpmScale: 1,
+                    bpmGlow: 0,
+                    beatWidth: 0,
+                    progressHead: 0,
+                    bgFlash: 0,
+                    btnScale: 1,
+                    btnGlow: 0,
+                    ambientPhase: Math.random() * 100,
+                    _heroBeatBoost: 0,
+                    _heroYBoost: 0,
+                    _heroShadowBoost: 0,
+                    _bpmScaleBoost: 0,
+                    _bpmGlowBoost: 0,
+                    _headBoost: 0,
+                },
+                params: {},
+                strategyState: {},
+                countdown: 0,
+                countdownActive: false,
+                tickTimer: null,
+                progressTimer: null,
+                dataTimer: null,
+                rafId: null,
+                animRunning: false,
+                _lastUpdate: 0,
+                core: {
+                    radius: 0,
+                    alpha: 0,
+                    glow: 0,
+                    breath: 0,
+                }
+            };
+
+            // =========================================================================
+            //  六、模式策略 (保持不变)
+            // =========================================================================
+            const MODES = {
+                FIXED: 'fixed',
+                VARIATION: 'variation',
+                COOLDOWN: 'cooldown',
+                HEATUP: 'heatup',
+                RANDOM: 'random',
+                WAVE: 'wave',
+                CHASE: 'chase'
+            };
+
+            const MODE_META = {
+                fixed: { label: '固定', icon: '🎯' },
+                variation: { label: '变奏', icon: '🌊' },
+                cooldown: { label: '渐冻', icon: '❄️' },
+                heatup: { label: '渐热', icon: '🔥' },
+                random: { label: '随机', icon: '🎲' },
+                wave: { label: '波浪', icon: '〰️' },
+                chase: { label: '追逃', icon: '🏹' }
+            };
+
+            function getParamDefs(mode) {
+                const commonDuration = { id: 'duration', label: '总时长 (分钟)', type: 'range', min: 1, max: 60, step: 1,
+                    default: 10 };
+                switch (mode) {
+                    case MODES.FIXED:
+                        return [
+                            { id: 'bpm', label: 'BPM', type: 'range', min: 30, max: 250, step: 1, default: 120 },
+                            commonDuration
+                        ];
+                    case MODES.VARIATION:
+                        return [
+                            { id: 'bpmList', label: 'BPM 序列', type: 'bpmList', default: [80, 120, 160, 100] },
+                            { id: 'transition', label: '变奏方式', type: 'radio', options: ['渐变', '跳变'],
+                                default: '渐变' },
+                            { id: 'interval', label: '间隔 (秒)', type: 'number', min: 1, max: 60, step: 0.5,
+                                default: 4 },
+                            commonDuration
+                        ];
+                    case MODES.COOLDOWN:
+                        return [
+                            { id: 'startBpm', label: '起始 BPM', type: 'range', min: 30, max: 250, step: 1,
+                                default: 180 },
+                            { id: 'endBpm', label: '结束 BPM', type: 'range', min: 30, max: 250, step: 1,
+                                default: 60 },
+                            { id: 'stepSize', label: '步长', type: 'number', min: 1, max: 50, step: 1, default: 5 },
+                            { id: 'stepInterval', label: '间隔 (秒)', type: 'number', min: 0.5, max: 30, step: 0.5,
+                                default: 3 },
+                            { id: 'transition', label: '变奏方式', type: 'radio', options: ['渐变', '跳变'],
+                                default: '渐变' },
+                            commonDuration
+                        ];
+                    case MODES.HEATUP:
+                        return [
+                            { id: 'startBpm', label: '起始 BPM', type: 'range', min: 30, max: 250, step: 1,
+                                default: 60 },
+                            { id: 'endBpm', label: '结束 BPM', type: 'range', min: 30, max: 250, step: 1,
+                                default: 180 },
+                            { id: 'stepSize', label: '步长', type: 'number', min: 1, max: 50, step: 1, default: 5 },
+                            { id: 'stepInterval', label: '间隔 (秒)', type: 'number', min: 0.5, max: 30, step: 0.5,
+                                default: 3 },
+                            { id: 'transition', label: '变奏方式', type: 'radio', options: ['渐变', '跳变'],
+                                default: '渐变' },
+                            commonDuration
+                        ];
+                    case MODES.RANDOM:
+                        return [
+                            { id: 'minBpm', label: '最低 BPM', type: 'range', min: 30, max: 250, step: 1,
+                                default: 60 },
+                            { id: 'maxBpm', label: '最高 BPM', type: 'range', min: 30, max: 250, step: 1,
+                                default: 200 },
+                            { id: 'minInterval', label: '最短间隔 (秒)', type: 'number', min: 0.5, max: 20, step: 0.5,
+                                default: 2 },
+                            { id: 'maxInterval', label: '最长间隔 (秒)', type: 'number', min: 0.5, max: 30, step: 0.5,
+                                default: 6 },
+                            { id: 'transition', label: '变奏方式', type: 'radio', options: ['渐变', '跳变'],
+                                default: '渐变' },
+                            commonDuration
+                        ];
+                    case MODES.WAVE:
+                        return [
+                            { id: 'minBpm', label: '最低 BPM', type: 'range', min: 30, max: 250, step: 1,
+                                default: 60 },
+                            { id: 'maxBpm', label: '最高 BPM', type: 'range', min: 30, max: 250, step: 1,
+                                default: 200 },
+                            { id: 'period', label: '周期 (秒)', type: 'number', min: 5, max: 180, step: 1,
+                                default: 30 },
+                            { id: 'waveform', label: '波形', type: 'waveform', options: ['正弦波', '三角波', '方波'],
+                                default: '正弦波' },
+                            commonDuration
+                        ];
+                    case MODES.CHASE:
+                        return [
+                            { id: 'safeBpm', label: '安全 BPM', type: 'range', min: 30, max: 200, step: 1,
+                                default: 90 },
+                            { id: 'huntBpm', label: '追猎 BPM', type: 'range', min: 80, max: 250, step: 1,
+                                default: 170 },
+                            { id: 'minGap', label: '追猎间隔 (秒)', type: 'number', min: 5, max: 60, step: 1,
+                                default: 15 },
+                            { id: 'maxGap', label: '追猎间隔 (秒)', type: 'number', min: 5, max: 60, step: 1,
+                                default: 45 },
+                            { id: 'minHunt', label: '追猎时长 (秒)', type: 'number', min: 3, max: 30, step: 0.5,
+                                default: 8 },
+                            { id: 'maxHunt', label: '追猎时长 (秒)', type: 'number', min: 3, max: 30, step: 0.5,
+                                default: 15 },
+                            { id: 'transition', label: '变奏方式', type: 'radio', options: ['渐变', '跳变'],
+                                default: '跳变' },
+                            commonDuration
+                        ];
+                    default:
+                        return [];
+                }
+            }
+
+            // ----- 策略类 (保持不变) -----
+            class ModeStrategy {
+                constructor() { this.name = 'base'; }
+                init(s) { return s; }
+                update(s, now) { return s; }
+                getLabel() { return '基础'; }
+                getDuration(s) { return 300; }
+            }
+
+            class FixedMode extends ModeStrategy {
+                constructor() { super();
+                    this.name = MODES.FIXED; }
+                init(s) { s.bpm = s.params.bpm || 120;
+                    s.targetBpm = s.bpm; return s; }
+                update(s, now) { s.bpm = s.params.bpm || 120;
+                    s.targetBpm = s.bpm; return s; }
+                getLabel() { return '固定节奏'; }
+                getDuration(s) { return (s.params.duration || 10) * 60; }
+            }
+
+            class VariationMode extends ModeStrategy {
+                constructor() { super();
+                    this.name = MODES.VARIATION; }
+                init(s) {
+                    const list = s.params.bpmList || [80, 120, 160, 100];
+                    if (list.length === 0) { s.bpm = 120;
+                        s.targetBpm = 120; return s; }
+                    s.bpm = list[0];
+                    s.targetBpm = list[0];
+                    s.strategyState = { idx: 0, startTime: null, startBpm: list[0], targetBpm: list[0] };
+                    return s;
+                }
+                update(s, now) {
+                    const list = s.params.bpmList || [];
+                    if (list.length === 0) { s.bpm = 120;
+                        s.targetBpm = 120; return s; }
+                    const interval = (s.params.interval || 4) * 1000;
+                    const trans = s.params.transition || '渐变';
+                    const st = s.strategyState;
+                    const idx = st.idx % list.length;
+                    const target = list[idx];
+                    if (!st.startTime) {
+                        st.startTime = now;
+                        st.startBpm = s.bpm;
+                        st.targetBpm = target;
+                    }
+                    const elapsed = now - st.startTime;
+                    if (elapsed >= interval) {
+                        st.idx = (st.idx + 1) % list.length;
+                        const nextIdx = st.idx % list.length;
+                        const nextTarget = list[nextIdx];
+                        st.startTime = now;
+                        st.startBpm = s.bpm;
+                        st.targetBpm = nextTarget;
+                        if (trans === '跳变') { s.bpm = nextTarget;
+                            s.targetBpm = nextTarget; }
+                    } else {
+                        if (trans === '渐变') {
+                            const p = Math.min(elapsed / interval, 1);
+                            const ease = 1 - Math.pow(1 - p, 2);
+                            s.bpm = st.startBpm + (st.targetBpm - st.startBpm) * ease;
+                            s.targetBpm = st.targetBpm;
+                        } else { s.bpm = st.startBpm;
+                            s.targetBpm = st.targetBpm; }
+                    }
+                    return s;
+                }
+                getLabel() { return '变奏切换'; }
+                getDuration(s) { return (s.params.duration || 10) * 60; }
+            }
+
+            class CooldownMode extends ModeStrategy {
+                constructor() { super();
+                    this.name = MODES.COOLDOWN; }
+                init(s) {
+                    s.bpm = s.params.startBpm || 180;
+                    s.targetBpm = s.bpm;
+                    s.strategyState = { startTime: null, startBpm: s.bpm, targetBpm: s.bpm };
+                    return s;
+                }
+                update(s, now) {
+                    const start = s.params.startBpm || 180,
+                        end = s.params.endBpm || 60,
+                        step = s.params.stepSize || 5,
+                        interval = (s.params.stepInterval || 3) * 1000;
+                    const trans = s.params.transition || '渐变';
+                    if (s.bpm <= end) { s.bpm = end;
+                        s.targetBpm = end; return s; }
+                    const st = s.strategyState;
+                    if (!st.startTime) {
+                        st.startTime = now;
+                        st.startBpm = s.bpm;
+                        st.targetBpm = Math.max(end, s.bpm - step);
+                    }
+                    const elapsed = now - st.startTime;
+                    if (elapsed >= interval) {
+                        const newBpm = Math.max(end, s.bpm - step);
+                        st.startTime = now;
+                        st.startBpm = s.bpm;
+                        st.targetBpm = Math.max(end, newBpm);
+                        if (trans === '跳变') { s.bpm = newBpm;
+                            s.targetBpm = newBpm; }
+                    } else {
+                        if (trans === '渐变') {
+                            const p = Math.min(elapsed / interval, 1);
+                            const ease = 1 - Math.pow(1 - p, 2);
+                            s.bpm = st.startBpm + (st.targetBpm - st.startBpm) * ease;
+                            s.targetBpm = st.targetBpm;
+                        } else { s.bpm = st.startBpm;
+                            s.targetBpm = st.targetBpm; }
+                    }
+                    return s;
+                }
+                getLabel() { return '渐冻模式'; }
+                getDuration(s) {
+                    const start = s.params.startBpm || 180,
+                        end = s.params.endBpm || 60,
+                        step = s.params.stepSize || 5,
+                        interval = s.params.stepInterval || 3;
+                    return Math.max(Math.ceil((start - end) / step) * interval, 30);
+                }
+            }
+
+            class HeatupMode extends ModeStrategy {
+                constructor() { super();
+                    this.name = MODES.HEATUP; }
+                init(s) {
+                    s.bpm = s.params.startBpm || 60;
+                    s.targetBpm = s.bpm;
+                    s.strategyState = { startTime: null, startBpm: s.bpm, targetBpm: s.bpm };
+                    return s;
+                }
+                update(s, now) {
+                    const start = s.params.startBpm || 60,
+                        end = s.params.endBpm || 180,
+                        step = s.params.stepSize || 5,
+                        interval = (s.params.stepInterval || 3) * 1000;
+                    const trans = s.params.transition || '渐变';
+                    if (s.bpm >= end) { s.bpm = end;
+                        s.targetBpm = end; return s; }
+                    const st = s.strategyState;
+                    if (!st.startTime) {
+                        st.startTime = now;
+                        st.startBpm = s.bpm;
+                        st.targetBpm = Math.min(end, s.bpm + step);
+                    }
+                    const elapsed = now - st.startTime;
+                    if (elapsed >= interval) {
+                        const newBpm = Math.min(end, s.bpm + step);
+                        st.startTime = now;
+                        st.startBpm = s.bpm;
+                        st.targetBpm = Math.min(end, newBpm);
+                        if (trans === '跳变') { s.bpm = newBpm;
+                            s.targetBpm = newBpm; }
+                    } else {
+                        if (trans === '渐变') {
+                            const p = Math.min(elapsed / interval, 1);
+                            const ease = 1 - Math.pow(1 - p, 2);
+                            s.bpm = st.startBpm + (st.targetBpm - st.startBpm) * ease;
+                            s.targetBpm = st.targetBpm;
+                        } else { s.bpm = st.startBpm;
+                            s.targetBpm = st.targetBpm; }
+                    }
+                    return s;
+                }
+                getLabel() { return '渐热模式'; }
+                getDuration(s) {
+                    const start = s.params.startBpm || 60,
+                        end = s.params.endBpm || 180,
+                        step = s.params.stepSize || 5,
+                        interval = s.params.stepInterval || 3;
+                    return Math.max(Math.ceil((end - start) / step) * interval, 30);
+                }
+            }
+
+            class RandomMode extends ModeStrategy {
+                constructor() { super();
+                    this.name = MODES.RANDOM; }
+                init(s) {
+                    const minB = s.params.minBpm || 60,
+                        maxB = s.params.maxBpm || 200;
+                    s.bpm = Math.round((minB + maxB) / 2);
+                    s.targetBpm = s.bpm;
+                    s.strategyState = { startTime: null, startBpm: s.bpm, targetBpm: s.bpm, duration: 3000,
+                        lastBpm: s.bpm };
+                    return s;
+                }
+                update(s, now) {
+                    const minB = s.params.minBpm || 60,
+                        maxB = s.params.maxBpm || 200;
+                    const minInt = (s.params.minInterval || 2) * 1000,
+                        maxInt = (s.params.maxInterval || 6) * 1000;
+                    const trans = s.params.transition || '渐变';
+                    const st = s.strategyState;
+                    let lastBpm = st.lastBpm || s.bpm;
+                    if (!st.startTime) {
+                        st.startTime = now;
+                        st.startBpm = s.bpm;
+                        let nextBpm;
+                        do { nextBpm = Math.round(Math.random() * (maxB - minB) + minB); } while (Math.abs(nextBpm -
+                            lastBpm) < 5 && maxB - minB > 10);
+                        st.lastBpm = nextBpm;
+                        st.targetBpm = nextBpm;
+                        st.duration = Math.random() * (maxInt - minInt) + minInt;
+                    }
+                    const elapsed = now - st.startTime;
+                    if (elapsed >= st.duration) {
+                        let nextBpm;
+                        do { nextBpm = Math.round(Math.random() * (maxB - minB) + minB); } while (Math.abs(nextBpm - (
+                            st.lastBpm || s.bpm)) < 5 && maxB - minB > 10);
+                        st.lastBpm = nextBpm;
+                        st.startTime = now;
+                        st.startBpm = s.bpm;
+                        st.targetBpm = nextBpm;
+                        st.duration = Math.random() * (maxInt - minInt) + minInt;
+                        if (trans === '跳变') { s.bpm = nextBpm;
+                            s.targetBpm = nextBpm; }
+                    } else {
+                        if (trans === '渐变') {
+                            const p = Math.min(elapsed / st.duration, 1);
+                            const ease = 1 - Math.pow(1 - p, 2);
+                            s.bpm = st.startBpm + (st.targetBpm - st.startBpm) * ease;
+                            s.targetBpm = st.targetBpm;
+                        } else { s.bpm = st.startBpm;
+                            s.targetBpm = st.targetBpm; }
+                    }
+                    return s;
+                }
+                getLabel() { return '随机变奏'; }
+                getDuration(s) { return (s.params.duration || 10) * 60; }
+            }
+
+            class WaveMode extends ModeStrategy {
+                constructor() { super();
+                    this.name = MODES.WAVE; }
+                init(s) {
+                    s.bpm = s.params.minBpm || 60;
+                    s.targetBpm = s.bpm;
+                    s.strategyState = { time: 0 };
+                    return s;
+                }
+                update(s, now) {
+                    const minB = s.params.minBpm || 60,
+                        maxB = s.params.maxBpm || 200;
+                    const period = (s.params.period || 30) * 1000;
+                    const waveform = s.params.waveform || '正弦波';
+                    const st = s.strategyState;
+                    st.time += 16;
+                    const t = (st.time % period) / period;
+                    let ratio;
+                    switch (waveform) {
+                        case '正弦波':
+                            ratio = (Math.sin(t * 2 * Math.PI - Math.PI / 2) + 1) / 2;
+                            break;
+                        case '三角波':
+                            ratio = 1 - Math.abs(2 * (t - Math.floor(t + 0.5)));
+                            break;
+                        case '方波':
+                            ratio = Math.floor(t * 2) % 2;
+                            break;
+                        default:
+                            ratio = (Math.sin(t * 2 * Math.PI - Math.PI / 2) + 1) / 2;
+                    }
+                    s.bpm = minB + (maxB - minB) * Math.max(0, Math.min(1, ratio));
+                    s.targetBpm = s.bpm;
+                    return s;
+                }
+                getLabel() { return '波浪模式'; }
+                getDuration(s) { return (s.params.duration || 10) * 60; }
+            }
+
+            class ChaseMode extends ModeStrategy {
+                constructor() { super();
+                    this.name = MODES.CHASE; }
+                init(s) {
+                    s.bpm = s.params.safeBpm || 90;
+                    s.targetBpm = s.bpm;
+                    s.strategyState = { inChase: false, nextChaseTime: 0, chaseEndTime: 0, chaseDuration: 0,
+                        chaseStartTime: 0, chaseStartBpm: 90, chaseTargetBpm: 170 };
+                    return s;
+                }
+                update(s, now) {
+                    const safe = s.params.safeBpm || 90,
+                        hunt = s.params.huntBpm || 170;
+                    const minGap = (s.params.minGap || 15) * 1000,
+                        maxGap = (s.params.maxGap || 45) * 1000;
+                    const minHunt = (s.params.minHunt || 8) * 1000,
+                        maxHunt = (s.params.maxHunt || 15) * 1000;
+                    const trans = s.params.transition || '跳变';
+                    const st = s.strategyState;
+                    if (!st.inChase) {
+                        if (!st.nextChaseTime) st.nextChaseTime = now + Math.random() * (maxGap - minGap) + minGap;
+                        if (now >= st.nextChaseTime) {
+                            st.inChase = true;
+                            st.chaseDuration = Math.random() * (maxHunt - minHunt) + minHunt;
+                            st.chaseEndTime = now + st.chaseDuration;
+                            st.chaseStartBpm = s.bpm;
+                            st.chaseTargetBpm = hunt;
+                            st.chaseStartTime = now;
+                            if (trans === '跳变') { s.bpm = hunt;
+                                s.targetBpm = hunt; }
+                            st.nextChaseTime = 0;
+                        } else {
+                            if (s.bpm !== safe) {
+                                if (trans === '跳变') { s.bpm = safe;
+                                    s.targetBpm = safe; } else { s.bpm += (safe - s.bpm) * 0.02;
+                                    s.targetBpm = safe; }
+                            }
+                        }
+                    } else {
+                        if (now >= st.chaseEndTime) {
+                            st.inChase = false;
+                            st.nextChaseTime = now + Math.random() * (maxGap - minGap) + minGap;
+                            if (trans === '跳变') { s.bpm = safe;
+                                s.targetBpm = safe; }
+                        } else {
+                            if (trans === '跳变') { s.bpm = hunt;
+                                s.targetBpm = hunt; } else {
+                                const p = Math.min((now - st.chaseStartTime) / st.chaseDuration, 1);
+                                const ease = 1 - Math.pow(1 - p, 2);
+                                s.bpm = st.chaseStartBpm + (st.chaseTargetBpm - st.chaseStartBpm) * ease;
+                                s.targetBpm = hunt;
+                            }
+                        }
+                    }
+                    return s;
+                }
+                getLabel() { return '追逃模式'; }
+                getDuration(s) { return (s.params.duration || 15) * 60; }
+            }
+
+            const modeFactory = {
+                [MODES.FIXED]: () => new FixedMode(),
+                [MODES.VARIATION]: () => new VariationMode(),
+                [MODES.COOLDOWN]: () => new CooldownMode(),
+                [MODES.HEATUP]: () => new HeatupMode(),
+                [MODES.RANDOM]: () => new RandomMode(),
+                [MODES.WAVE]: () => new WaveMode(),
+                [MODES.CHASE]: () => new ChaseMode(),
+            };
+
+            let currentStrategy = new FixedMode();
+
+            // =========================================================================
+            //  七、休息状态管理 (新增)
+            // =========================================================================
+
+            function enterRestState() {
+                if (!LRE.running || LRE.resting) return;
+                // 记录原始BPM
+                LRE.restOriginalBpm = Math.max(10, LRE.bpm);
+                LRE.restCurrentBpm = LRE.restOriginalBpm;
+                LRE.resting = true;
+                LRE.restPhase = 'down';
+                LRE.restStartTime = performance.now();
+                LRE.restPhaseStartTime = LRE.restStartTime;
+                LRE.restProgress = 0;
+                LRE.restPhaseProgress = 0;
+                LRE.restTriggeredAt = performance.now();
+
+                // 停止节拍定时器
+                if (LRE.tickTimer) {
+                    clearTimeout(LRE.tickTimer);
+                    LRE.tickTimer = null;
+                }
+
+                // 边缘计数+1
+                LRE.edgeCount++;
+                edgeCount.textContent = LRE.edgeCount;
+                dataEdge.textContent = LRE.edgeCount;
+
+                // 视觉反馈
+                app.classList.add('resting-active');
+                btnEdge.classList.add('resting-btn');
+                btnEdge.textContent = '🧘 休息中';
+
+                // 显示休息进度条
+                restProgressWrap.classList.add('show');
+                restProgressFill.style.width = '0%';
+
+                // Toast提示
+                showToast('🧘 进入休息', `5秒降至0 BPM · 保持15秒 · 5秒回升`);
+
+                // 播放一个提示音
+                playClick();
+
+                // 重置脉冲
+                for (const p of LRE.pulses) { p.active = false;
+                    p.alpha = 0;
+                    p.scale = 1;
+                    p.blur = 0; }
+
+                // 触发一个柔和的视觉脉冲
+                LRE.canvasGlowTarget = 0.06;
+
+                // 更新UI
+                updateUI();
+                renderPulse();
+            }
+
+            function updateRestState(now) {
+                if (!LRE.resting) return;
+
+                const elapsed = now - LRE.restStartTime;
+                const total = LRE.restTotalDuration;
+                LRE.restProgress = Math.min(elapsed / total, 1);
+
+                let bpm = 0;
+                let phase = LRE.restPhase;
+                let phaseElapsed = now - LRE.restPhaseStartTime;
+
+                switch (phase) {
+                    case 'down': {
+                        const dur = LRE.restDownDuration;
+                        const p = Math.min(phaseElapsed / dur, 1);
+                        const ease = Easing.linear(p);
+                        bpm = LRE.restOriginalBpm * (1 - ease);
+                        LRE.restPhaseProgress = p;
+                        if (p >= 1) {
+                            bpm = 0;
+                            LRE.restPhase = 'hold';
+                            LRE.restPhaseStartTime = now;
+                            LRE.restPhaseProgress = 0;
+                            // 进入保持阶段提示
+                            playClick();
+                        }
+                        break;
+                    }
+                    case 'hold': {
+                        const dur = LRE.restHoldDuration;
+                        const p = Math.min(phaseElapsed / dur, 1);
+                        bpm = 0;
+                        LRE.restPhaseProgress = p;
+                        if (p >= 1) {
+                            LRE.restPhase = 'up';
+                            LRE.restPhaseStartTime = now;
+                            LRE.restPhaseProgress = 0;
+                            // 进入上升阶段提示
+                            playClick();
+                        }
+                        break;
+                    }
+                    case 'up': {
+                        const dur = LRE.restUpDuration;
+                        const p = Math.min(phaseElapsed / dur, 1);
+                        const ease = Easing.linear(p);
+                        bpm = LRE.restOriginalBpm * ease;
+                        LRE.restPhaseProgress = p;
+                        if (p >= 1) {
+                            bpm = LRE.restOriginalBpm;
+                            // 休息结束
+                            exitRestState();
+                            return;
+                        }
+                        break;
+                    }
+                    default: {
+                        bpm = LRE.restOriginalBpm;
+                        exitRestState();
+                        return;
+                    }
+                }
+
+                // 更新当前BPM
+                LRE.restCurrentBpm = Math.max(0, Math.min(300, bpm));
+                LRE.bpm = LRE.restCurrentBpm;
+                LRE.targetBpm = LRE.restCurrentBpm;
+
+                // 更新休息进度条
+                restProgressFill.style.width = (LRE.restProgress * 100) + '%';
+
+                // 更新UI
+                updateUI();
+
+                // 在休息期间不触发节拍，beatProgressFill置0
+                beatProgressFill.style.width = '0%';
+                beatProgressFill.classList.remove('show-head');
+
+                // 如果总时长到了，结束引擎
+                if (LRE.elapsed >= LRE.totalDuration) {
+                    stopEngine();
+                }
+            }
+
+            function exitRestState() {
+                if (!LRE.resting) return;
+                LRE.resting = false;
+                LRE.restPhase = null;
+                LRE.restCurrentBpm = LRE.restOriginalBpm;
+                LRE.bpm = LRE.restOriginalBpm;
+                LRE.targetBpm = LRE.restOriginalBpm;
+
+                // 移除休息样式
+                app.classList.remove('resting-active');
+                btnEdge.classList.remove('resting-btn');
+                btnEdge.textContent = '🔴 边缘 ';
+
+                // 隐藏休息进度条
+                restProgressWrap.classList.remove('show');
+                restProgressFill.style.width = '0%';
+
+                // 重新启动节拍
+                if (LRE.running) {
+                    LRE.lastBeatTime = performance.now();
+                    scheduleTick();
+                }
+
+                // Toast提示
+                showToast('✅ 休息结束', `恢复至 ${Math.round(LRE.restOriginalBpm)} BPM`);
+
+                // 触发一个脉冲
+                LRE.canvasGlowTarget = 0.04;
+                for (const p of LRE.pulses) {
+                    p.active = true;
+                    p.startTime = performance.now();
+                    p.progress = 0;
+                    p.scale = 1;
+                    p.alpha = 0;
+                    p.blur = 0;
+                    p.targetScale = 1.06;
+                    p.targetAlpha = 0.20;
+                    p.targetBlur = 6;
+                    p.duration = 100;
+                    p.thickness = 0.06;
+                }
+
+                updateUI();
+                renderPulse();
+            }
+
+            // =========================================================================
+            //  八、核心更新函数 (增强版)
+            // =========================================================================
+            function updateLRE(now) {
+                if (!LRE.running) return;
+                const dt = Math.min(16, now - (LRE._lastUpdate || now));
+                LRE._lastUpdate = now;
+                LRE.delta = dt;
+                LRE.now = now;
+
+                // ---- 休息状态优先 ----
+                if (LRE.resting) {
+                    updateRestState(now);
+                    // 更新DOM（但不触发节拍）
+                    updateDOMForRest();
+                    renderPulse();
+                    return;
+                }
+
+                // ---- 正常模式策略 ----
+                currentStrategy.update(LRE, now);
+                LRE.bpm = Math.max(10, Math.min(300, LRE.bpm));
+                LRE.targetBpm = Math.max(10, Math.min(300, LRE.targetBpm));
+                LRE.bpmSum += LRE.bpm;
+                LRE.bpmCount++;
+                if (LRE.bpm > LRE.maxBpm) LRE.maxBpm = LRE.bpm;
+
+                LRE.beatInterval = 60000 / Math.max(LRE.bpm, 10);
+                const beatElapsed = now - LRE.lastBeatTime;
+                LRE.beatPhase = Math.min(beatElapsed / LRE.beatInterval, 1);
+
+                // 能量
+                const energyDiff = LRE.energyTarget - LRE.energy;
+                LRE.energyVelocity += energyDiff * 0.08;
+                LRE.energyVelocity *= 0.92;
+                LRE.energy += LRE.energyVelocity * dt / 16;
+                LRE.energy = Math.max(0, Math.min(100, LRE.energy));
+                LRE.momentum *= 0.998;
+                LRE.momentum = Math.max(0, LRE.momentum);
+                if (LRE.energy > 20) LRE.momentum += (LRE.energy - 20) * 0.001;
+                LRE.energyTarget *= 0.998;
+                if (LRE.energyTarget < 0.1) LRE.energyTarget = 0;
+
+                // DOM 动态
+                const e = LRE.energy / 100;
+                const ambientHero = 1 + 0.008 * Math.sin(now / 4000 + LRE.dom.ambientPhase);
+                const energyHero = e * 0.035;
+                LRE.dom.heroScale = ambientHero + energyHero + (LRE.dom._heroBeatBoost || 0);
+                LRE.dom.heroScale = Math.max(0.98, Math.min(1.08, LRE.dom.heroScale));
+                const ambientY = 0.6 * Math.sin(now / 5000 + LRE.dom.ambientPhase * 0.7);
+                const energyY = -e * 2.5;
+                LRE.dom.heroY = ambientY + energyY + (LRE.dom._heroYBoost || 0);
+                LRE.dom.heroShadow = 4 + e * 20 + (LRE.dom._heroShadowBoost || 0);
+                const ambientBpm = 1 + 0.004 * Math.sin(now / 3000 + LRE.dom.ambientPhase * 1.2);
+                LRE.dom.bpmScale = ambientBpm + e * 0.08 + (LRE.dom._bpmScaleBoost || 0);
+                LRE.dom.bpmGlow = e * 0.6 + (LRE.dom._bpmGlowBoost || 0);
+                LRE.dom.beatWidth *= 0.88;
+                if (LRE.dom.beatWidth < 0.001) LRE.dom.beatWidth = 0;
+                LRE.dom.progressHead = e * 0.8 + (LRE.dom._headBoost || 0);
+                LRE.dom.bgFlash *= 0.94;
+                if (LRE.dom.bgFlash < 0.001) LRE.dom.bgFlash = 0;
+                LRE.canvasGlow += (LRE.canvasGlowTarget - LRE.canvasGlow) * 0.10;
+                if (Math.abs(LRE.canvasGlow) < 0.0005) LRE.canvasGlow = 0;
+                LRE.canvasGlowTarget *= 0.97;
+                if (LRE.canvasGlowTarget < 0.0005) LRE.canvasGlowTarget = 0;
+
+                updatePulses(now);
+                updateCore(now);
+                renderPulse();
+                applyDOM();
+                updateUI();
+                updateProgress();
+
+                // 衰减节拍boost
+                decayBeatBoosts();
+            }
+
+            function updateDOMForRest() {
+                // 在休息状态下更新DOM，但不触发节拍
+                const d = LRE.dom;
+                const bpm = LRE.restCurrentBpm || 0;
+                bpmNumber.textContent = Math.round(bpm);
+
+                // 预签名
+                const phase = LRE.restPhase;
+                preSign.className = 'pre-sign';
+                if (phase === 'down') {
+                    preSign.className = 'pre-sign show down';
+                    preSign.textContent = '↓';
+                } else if (phase === 'hold') {
+                    preSign.className = 'pre-sign show rest';
+                    preSign.textContent = '—';
+                } else if (phase === 'up') {
+                    preSign.className = 'pre-sign show up';
+                    preSign.textContent = '↑';
+                } else {
+                    preSign.textContent = '—';
+                }
+
+                // 显示休息图标
+                restIcon.classList.add('show');
+
+                // BPM颜色
+                bpmBig.classList.add('resting-color');
+                bpmBig.classList.remove('warn');
+
+                // 模式标签
+                bpmModeLabel.textContent = '🧘 休息中';
+                bpmModeLabel.classList.add('resting-label');
+
+                // 状态标签
+                statusDot.className = 'dot resting-dot';
+                statusLabel.textContent = '休息中';
+                statusLabel.classList.add('resting-label');
+
+                // 进度条
+                beatProgressFill.classList.add('resting-fill');
+                beatProgressFill.style.width = '0%';
+                beatProgressFill.classList.remove('show-head');
+
+                // 环
+                bpmRing.classList.add('resting-ring');
+                bpmRing.classList.remove('warn');
+
+                // 背景
+                app.style.background = 'var(--surface)';
+                app.style.backgroundColor = 'var(--surface)';
+
+                // 边缘按钮
+                btnEdge.classList.add('resting-btn');
+                btnEdge.textContent = '🧘 休息中';
+
+                // 其他UI
+                const meta = MODE_META[LRE.mode] || { label: '固定', icon: '🔊' };
+                currentModeDisplay.textContent = meta.label;
+                currentModeDisplay.classList.add('resting');
+
+                // 数据行
+                dataEdge.textContent = LRE.edgeCount;
+                const mins = Math.floor(LRE.elapsed / 60);
+                const secs = Math.floor(LRE.elapsed % 60);
+                dataTime.textContent = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+                dataMax.textContent = LRE.maxBpm > 0 ? Math.round(LRE.maxBpm) : '—';
+                dataAvg.textContent = LRE.bpmCount > 0 ? Math.round(LRE.bpmSum / LRE.bpmCount) : '—';
+
+                // 休息进度条
+                restProgressWrap.classList.add('show');
+                restProgressFill.style.width = (LRE.restProgress * 100) + '%';
+
+                // 按钮缩放
+                btnStart.style.transform = 'scale(1)';
+            }
+
+            function updatePulses(now) {
+                for (const layer of LRE.pulses) {
+                    if (!layer.active) {
+                        layer.alpha *= 0.94;
+                        layer.blur *= 0.94;
+                        if (layer.alpha < 0.001) layer.alpha = 0;
+                        if (layer.blur < 0.1) layer.blur = 0;
+                        continue;
+                    }
+                    const elapsed = now - layer.startTime;
+                    if (elapsed < 0) continue;
+                    const p = Math.min(elapsed / layer.duration, 1);
+                    layer.progress = p;
+                    const easeP = Easing.easeOutQuart(p);
+                    const scaleDelta = (layer.targetScale - 1) * (1 - Math.pow(1 - p, 3));
+                    layer.scale = 1 + scaleDelta;
+                    const alphaRise = Math.min(p * 4, 1);
+                    const alphaFall = 1 - Math.pow(p, 1.6);
+                    layer.alpha = layer.targetAlpha * alphaRise * alphaFall;
+                    const blurRise = Math.min(p * 3, 1);
+                    const blurFall = 1 - Math.pow(p, 0.9);
+                    layer.blur = layer.targetBlur * blurRise * blurFall;
+                    if (p >= 1) {
+                        layer.active = false;
+                        layer.alpha = 0;
+                        layer.blur = 0;
+                        layer.scale = 1;
+                    }
+                }
+            }
+
+            function updateCore(now) {
+                const e = LRE.energy / 100;
+                const breath = 0.92 + 0.08 * Math.sin(now / 600 + LRE.dom.ambientPhase * 1.7);
+                const beatBoost = LRE.dom._heroBeatBoost || 0;
+                LRE.core.radius = 0.06 + 0.07 * e + 0.04 * breath + 0.06 * beatBoost * 6;
+                LRE.core.alpha = 0.45 + 0.55 * e + 0.15 * breath;
+                LRE.core.glow = 0.15 + 0.50 * e + 0.25 * beatBoost * 5;
+                LRE.core.breath = breath;
+            }
+
+            function triggerBeat() {
+                if (LRE.resting) return;
+                const now = performance.now();
+                LRE.lastBeatTime = now;
+                const intensity = Math.min((LRE.bpm - 30) / 220, 1) * 0.8 + 0.2;
+                LRE.energyTarget = Math.min(100, LRE.energyTarget + 22 + 14 * intensity);
+                LRE.canvasGlowTarget = 0.10 * intensity;
+
+                const layerConfigs = [
+                    { delay: 0, scale: 1.12, alpha: 0.60, blur: 6, dur: 70, thick: 0.10 },
+                    { delay: 40, scale: 1.28, alpha: 0.48, blur: 16, dur: 130, thick: 0.075 },
+                    { delay: 85, scale: 1.52, alpha: 0.32, blur: 30, dur: 230, thick: 0.050 },
+                    { delay: 150, scale: 1.85, alpha: 0.20, blur: 48, dur: 380, thick: 0.032 },
+                    { delay: 240, scale: 2.25, alpha: 0.12, blur: 70, dur: 580, thick: 0.018 },
+                ];
+                for (let i = 0; i < LRE.pulses.length && i < layerConfigs.length; i++) {
+                    const cfg = layerConfigs[i];
+                    const layer = LRE.pulses[i];
+                    const intScale = 0.7 + 0.3 * intensity;
+                    layer.active = true;
+                    layer.startTime = now + cfg.delay;
+                    layer.progress = 0;
+                    layer.scale = 1;
+                    layer.alpha = 0;
+                    layer.blur = 0;
+                    layer.targetScale = 1 + (cfg.scale - 1) * intScale;
+                    layer.targetAlpha = cfg.alpha * (0.7 + 0.3 * intensity);
+                    layer.targetBlur = cfg.blur * (0.7 + 0.3 * intensity);
+                    layer.duration = cfg.dur * (0.8 + 0.4 * intensity);
+                    layer.thickness = cfg.thick;
+                }
+                const beatIntensity = intensity;
+                LRE.dom._heroBeatBoost = 0.030 * beatIntensity;
+                LRE.dom._heroYBoost = -3.0 * beatIntensity;
+                LRE.dom._heroShadowBoost = 15 * beatIntensity;
+                LRE.dom._bpmScaleBoost = 0.12 * beatIntensity;
+                LRE.dom._bpmGlowBoost = 0.6 * beatIntensity;
+                LRE.dom._headBoost = 0.7 * beatIntensity;
+                LRE.dom.bgFlash = 0.7 * beatIntensity;
+                LRE.dom.beatWidth = 1.0;
+                const freq = 860 + (LRE.bpm / 250) * 180;
+                playTick(freq, 0.12, 0.035);
+            }
+
+            function decayBeatBoosts() {
+                const decay = 0.88;
+                if (LRE.dom._heroBeatBoost) { LRE.dom._heroBeatBoost *= decay; if (Math.abs(LRE.dom._heroBeatBoost) <
+                        0.0005) LRE.dom._heroBeatBoost = 0; }
+                if (LRE.dom._heroYBoost) { LRE.dom._heroYBoost *= decay; if (Math.abs(LRE.dom._heroYBoost) < 0.01) LRE
+                        .dom._heroYBoost = 0; }
+                if (LRE.dom._heroShadowBoost) { LRE.dom._heroShadowBoost *= decay; if (Math.abs(LRE.dom
+                        ._heroShadowBoost) < 0.1) LRE.dom._heroShadowBoost = 0; }
+                if (LRE.dom._bpmScaleBoost) { LRE.dom._bpmScaleBoost *= decay; if (Math.abs(LRE.dom._bpmScaleBoost) <
+                        0.001) LRE.dom._bpmScaleBoost = 0; }
+                if (LRE.dom._bpmGlowBoost) { LRE.dom._bpmGlowBoost *= decay; if (Math.abs(LRE.dom._bpmGlowBoost) <
+                        0.001) LRE.dom._bpmGlowBoost = 0; }
+                if (LRE.dom._headBoost) { LRE.dom._headBoost *= decay; if (Math.abs(LRE.dom._headBoost) < 0.001) LRE
+                        .dom._headBoost = 0; }
+            }
+
+            function applyDOM() {
+                const d = LRE.dom;
+                bpmHero.style.transform =
+                    `scale(${d.heroScale}) translateY(${d.heroY}px)`;
+                bpmHero.style.boxShadow =
+                    `0 ${4 + d.heroShadow * 0.3}px ${20 + d.heroShadow * 1.5}px ${getPrimary(0.04 + d.heroShadow * 0.004)}`;
+                bpmBig.style.transform = `scale(${d.bpmScale})`;
+                bpmBig.style.textShadow = d.bpmGlow > 0.01 ?
+                    `0 0 ${d.bpmGlow * 40}px ${getPrimary(0.3)}` :
+                    'none';
+                const beatPulse = Math.sin(LRE.beatPhase * Math.PI);
+                const beatPercent = Math.max(0, Math.min(1, beatPulse)) * 100;
+                beatProgressFill.style.width = beatPercent + '%';
+                beatProgressFill.classList.toggle('show-head', beatPulse > 0.3);
+                const bf = d.bgFlash;
+                if (bf > 0.001) {
+                    if (currentTheme === 'dark') {
+                        app.style.background = `rgba(0, 136, 255, ${bf * 0.015})`;
+                        app.style.backgroundColor = 'var(--surface)';
+                    } else {
+                        app.style.background = getPrimary(bf * 0.05);
+                    }
+                } else {
+                    app.style.background = 'var(--surface)';
+                    app.style.backgroundColor = 'var(--surface)';
+                }
+                if (LRE.running && !LRE.resting) {
+                    const breath = 1 + 0.008 * Math.sin(LRE.now / 3000 + d.ambientPhase);
+                    const pulse = 1 + (1 - d.bpmScale) * 0.3;
+                    btnStart.style.transform = `scale(${breath * pulse})`;
+                } else {
+                    const breath = 1 + 0.012 * Math.sin(LRE.now / 3000 + d.ambientPhase);
+                    btnStart.style.transform = `scale(${breath})`;
+                }
+                if (LRE.edgeCount > 0 && !LRE.resting) {
+                    const flash = 0.5 + 0.5 * Math.sin(LRE.now / 600 + d.ambientPhase * 0.5);
+                    btnEdge.style.borderColor =
+                        `rgba(239,68,68,${0.2 + 0.3 * flash})`;
+                }
+                decayBeatBoosts();
+            }
+
+            // =========================================================================
+            //  九、Pulse 渲染器 (增强休息支持)
+            // =========================================================================
+            function renderPulse() {
+                const c = pulseCanvas;
+                const w = c._w || 200,
+                    h = c._h || 200;
+                const dpr = c._dpr || 1;
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                ctx.clearRect(0, 0, c.width, c.height);
+                ctx.scale(dpr, dpr);
+                const cx = w / 2,
+                    cy = h / 2;
+                const maxR = Math.min(w, h) * 0.44;
+
+                const bgGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxR);
+                const isDark = currentTheme === 'dark';
+                const isResting = LRE.resting;
+                if (isResting) {
+                    bgGrad.addColorStop(0, getRest(0.08));
+                    bgGrad.addColorStop(0.5, getRest(0.03));
+                } else if (isDark) {
+                    bgGrad.addColorStop(0, 'rgba(0, 136, 255, 0.06)');
+                    bgGrad.addColorStop(0.5, 'rgba(0, 136, 255, 0.025)');
+                } else {
+                    bgGrad.addColorStop(0, 'rgba(124, 58, 237, 0.06)');
+                    bgGrad.addColorStop(0.5, 'rgba(124, 58, 237, 0.025)');
+                }
+                bgGrad.addColorStop(1, 'rgba(0,0,0,0)');
+                ctx.fillStyle = bgGrad;
+                ctx.beginPath();
+                ctx.arc(cx, cy, maxR, 0, Math.PI * 2);
+                ctx.fill();
+
+                for (let pass = 0; pass < 2; pass++) {
+                    const isBloom = pass === 0;
+                    for (let i = LRE.pulses.length - 1; i >= 0; i--) {
+                        const layer = LRE.pulses[i];
+                        if (layer.alpha < 0.002) continue;
+                        const radius = maxR * layer.scale * 0.88;
+                        const thickness = maxR * (layer.thickness || 0.06) * 1.2;
+                        const innerR = Math.max(2, radius - thickness / 2);
+                        const outerR = radius + thickness / 2;
+                        const alphaFactor = isBloom ? 0.40 : 1.0;
+                        const finalAlpha = Math.min(layer.alpha * alphaFactor, 0.65);
+                        if (finalAlpha < 0.002) continue;
+
+                        const grad = ctx.createRadialGradient(cx, cy, innerR, cx, cy, outerR);
+                        let primaryCol, primaryLightCol, whiteCol;
+                        if (isResting) {
+                            primaryCol = getRest(Math.min(finalAlpha * 1.0, 0.8));
+                            primaryLightCol = getRest(Math.min(finalAlpha * 0.8, 0.7));
+                            whiteCol = getWhite(Math.min(finalAlpha * 0.8, 0.6));
+                        } else {
+                            primaryCol = getPrimaryVivid(Math.min(finalAlpha * 1.0, 0.8));
+                            primaryLightCol = getPrimaryLight(Math.min(finalAlpha * 0.8, 0.7));
+                            whiteCol = getWhite(Math.min(finalAlpha * 0.8, 0.6));
+                        }
+
+                        if (isBloom) {
+                            const glowCol = isResting ? getRest(finalAlpha * 0.25) : getPrimaryGlow(finalAlpha * 0.25);
+                            grad.addColorStop(0, glowCol);
+                            grad.addColorStop(0.3, glowCol);
+                            grad.addColorStop(0.7, glowCol);
+                            grad.addColorStop(1, 'rgba(0,0,0,0)');
+                        } else {
+                            grad.addColorStop(0, getWhite(Math.min(finalAlpha * 1.2, 0.8)));
+                            grad.addColorStop(0.12, getWhite(Math.min(finalAlpha * 0.7, 0.6)));
+                            grad.addColorStop(0.35, primaryLightCol);
+                            grad.addColorStop(0.65, primaryCol);
+                            grad.addColorStop(1, 'rgba(0,0,0,0)');
+                        }
+
+                        ctx.beginPath();
+                        ctx.arc(cx, cy, outerR, 0, Math.PI * 2);
+                        ctx.arc(cx, cy, innerR, 0, Math.PI * 2, true);
+                        ctx.closePath();
+
+                        if (isBloom) {
+                            const glowCol = isResting ? getRest(finalAlpha * 0.15) : getPrimaryGlow(finalAlpha * 0.15);
+                            ctx.shadowColor = glowCol;
+                            ctx.shadowBlur = Math.max(25, layer.blur * 3.0 + 18);
+                        } else {
+                            const glowCol = isResting ? getRest(finalAlpha * 0.20) : getPrimaryGlow(finalAlpha * 0.20);
+                            ctx.shadowColor = glowCol;
+                            ctx.shadowBlur = Math.max(5, layer.blur * 0.9 + 4);
+                        }
+                        ctx.fillStyle = grad;
+                        ctx.fill();
+                        ctx.shadowBlur = 0;
+
+                        if (!isBloom && finalAlpha > 0.05) {
+                            const strokeAlpha = finalAlpha * 0.20;
+                            ctx.beginPath();
+                            ctx.arc(cx, cy, outerR * 0.96, 0, Math.PI * 2);
+                            const strokeCol = isResting ? getRest(strokeAlpha) : getPrimaryLight(strokeAlpha);
+                            ctx.strokeStyle = strokeCol;
+                            ctx.lineWidth = Math.max(0.8, 1.5 + layer.blur * 0.05);
+                            const shadowCol = isResting ? getRest(strokeAlpha * 0.4) : getPrimaryGlow(strokeAlpha * 0.4);
+                            ctx.shadowColor = shadowCol;
+                            ctx.shadowBlur = Math.max(3, layer.blur * 0.4);
+                            ctx.stroke();
+                            ctx.shadowBlur = 0;
+                        }
+                    }
+                }
+
+                const core = LRE.core;
+                const coreR = maxR * Math.max(0.035, core.radius);
+                const coreA = Math.min(core.alpha, 0.92);
+                if (coreR > 1 && coreA > 0.01 && !isResting) {
+                    const glowR = coreR * (3.0 + 2.0 * core.glow);
+                    const glowGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, glowR);
+                    const glowAlpha = coreA * 0.25 * core.glow;
+                    glowGrad.addColorStop(0, getPrimaryLight(glowAlpha * 0.7));
+                    glowGrad.addColorStop(0.3, getPrimaryVivid(glowAlpha * 0.4));
+                    glowGrad.addColorStop(1, 'rgba(0,0,0,0)');
+                    ctx.fillStyle = glowGrad;
+                    ctx.shadowColor = getPrimaryGlow(glowAlpha * 0.3);
+                    ctx.shadowBlur = Math.max(12, glowR * 0.5);
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, glowR, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+
+                    const coreGrad = ctx.createRadialGradient(cx - coreR * 0.15, cy - coreR * 0.15, 0, cx, cy, coreR);
+                    const whiteA = Math.min(coreA * 1.3, 0.98);
+                    const primaryA = Math.min(coreA * 0.8, 0.7);
+                    coreGrad.addColorStop(0, getWhite(whiteA));
+                    coreGrad.addColorStop(0.25, getWhite(coreA * 0.8));
+                    coreGrad.addColorStop(0.55, getPrimaryLight(primaryA));
+                    coreGrad.addColorStop(0.85, getPrimaryVivid(primaryA * 0.8));
+                    coreGrad.addColorStop(1, getPrimary(primaryA * 0.6));
+                    ctx.fillStyle = coreGrad;
+                    ctx.shadowColor = getPrimaryGlow(coreA * 0.25);
+                    ctx.shadowBlur = Math.max(6, coreR * 0.8);
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, coreR, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+
+                    const hlR = coreR * 0.45;
+                    const hlGrad = ctx.createRadialGradient(cx - coreR * 0.2, cy - coreR * 0.25, 0, cx, cy, hlR);
+                    hlGrad.addColorStop(0, `rgba(255,255,255,${Math.min(coreA * 0.7, 0.6)})`);
+                    hlGrad.addColorStop(0.5, `rgba(255,255,255,${coreA * 0.2})`);
+                    hlGrad.addColorStop(1, 'rgba(255,255,255,0)');
+                    ctx.fillStyle = hlGrad;
+                    ctx.shadowBlur = 0;
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, hlR, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    const innerGlowR = coreR * 1.5;
+                    const igGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, innerGlowR);
+                    igGrad.addColorStop(0, getPrimaryLight(coreA * 0.10));
+                    igGrad.addColorStop(1, 'rgba(0,0,0,0)');
+                    ctx.fillStyle = igGrad;
+                    ctx.shadowBlur = 0;
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, innerGlowR, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                if (LRE.canvasGlow > 0.003 && !isResting) {
+                    const gR = maxR * (0.75 + 0.25 * LRE.canvasGlow * 3);
+                    const gg = ctx.createRadialGradient(cx, cy, maxR * 0.15, cx, cy, gR);
+                    const ga = 0.02 + 0.08 * LRE.canvasGlow * 2;
+                    if (isDark) {
+                        gg.addColorStop(0, 'rgba(0, 136, 255, 0)');
+                        gg.addColorStop(0.3, `rgba(0, 136, 255, ${ga * 0.4})`);
+                        gg.addColorStop(1, `rgba(0, 136, 255, ${ga})`);
+                    } else {
+                        gg.addColorStop(0, 'rgba(124, 58, 237, 0)');
+                        gg.addColorStop(0.3, `rgba(124, 58, 237, ${ga * 0.4})`);
+                        gg.addColorStop(1, `rgba(124, 58, 237, ${ga})`);
+                    }
+                    ctx.fillStyle = gg;
+                    ctx.shadowBlur = 0;
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, gR, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                if (isResting) {
+                    // 休息光环
+                    const rR = maxR * 0.60;
+                    const rGrad = ctx.createRadialGradient(cx, cy, rR * 0.3, cx, cy, rR);
+                    const breathe = 0.6 + 0.4 * Math.sin(performance.now() / 800 + LRE.dom.ambientPhase);
+                    rGrad.addColorStop(0, getRest(0.03 * breathe));
+                    rGrad.addColorStop(0.5, getRest(0.06 * breathe));
+                    rGrad.addColorStop(1, 'rgba(0,0,0,0)');
+                    ctx.fillStyle = rGrad;
+                    ctx.shadowColor = getRest(0.05 * breathe);
+                    ctx.shadowBlur = 40;
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, rR, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+
+                    // 中心柔和光点
+                    const dotR = maxR * 0.06;
+                    const dotGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, dotR);
+                    dotGrad.addColorStop(0, getRest(0.4 * breathe));
+                    dotGrad.addColorStop(1, 'rgba(0,0,0,0)');
+                    ctx.fillStyle = dotGrad;
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, dotR, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                const edgeGlow = Math.min(LRE.edgeCount / 30, 1) * 0.04;
+                if (edgeGlow > 0.002 && !isResting) {
+                    ctx.fillStyle = getEdge(edgeGlow);
+                    ctx.fillRect(0, 0, w, h);
+                }
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
+            }
+
+            function resizePulse() {
+                const rect = pulseCanvas.getBoundingClientRect();
+                const dpr = window.devicePixelRatio || 1;
+                const w = rect.width || 160,
+                    h = rect.height || 160;
+                pulseCanvas.width = w * dpr;
+                pulseCanvas.height = h * dpr;
+                pulseCanvas.style.width = w + 'px';
+                pulseCanvas.style.height = h + 'px';
+                pulseCanvas._dpr = dpr;
+                pulseCanvas._w = w;
+                pulseCanvas._h = h;
+            }
+            window.addEventListener('resize', resizePulse);
+            setTimeout(resizePulse, 50);
+
+            // =========================================================================
+            //  十、UI 更新
+            // =========================================================================
+            function updateUI() {
+                const bpm = LRE.running ? LRE.bpm : (LRE.targetBpm || LRE.bpm);
+                const rounded = Math.round(bpm);
+                bpmNumber.textContent = rounded;
+
+                // 如果处于休息状态，由 updateDOMForRest 处理
+                if (LRE.resting) return;
+
+                const diff = LRE.targetBpm - LRE.bpm;
+                if (Math.abs(diff) < 0.5) {
+                    preSign.className = 'pre-sign';
+                    preSign.textContent = '—';
+                } else if (diff > 0) {
+                    preSign.className = 'pre-sign show up';
+                    preSign.textContent = '↑';
+                } else {
+                    preSign.className = 'pre-sign show down';
+                    preSign.textContent = '↓';
+                }
+                const warn = rounded > 160;
+                bpmNumber.parentElement.classList.toggle('warn', warn);
+                bpmRing.classList.toggle('warn', warn);
+                bpmModeLabel.textContent = currentStrategy.getLabel() || '节奏';
+                bpmModeLabel.classList.remove('resting-label');
+                bpmBig.classList.remove('resting-color');
+                restIcon.classList.remove('show');
+
+                const isRunning = LRE.running;
+                statusDot.className = 'dot' + (isRunning ? ' running' : '');
+                statusLabel.textContent = isRunning ? '运行' : '待机';
+                statusLabel.classList.remove('resting-label');
+                btnStart.textContent = isRunning ? '■ 停止' : '▶ 开始';
+                btnStart.classList.toggle('running', isRunning);
+                app.classList.toggle('immersive', isRunning && !LRE.resting);
+
+                // 边缘按钮状态
+                if (!LRE.resting) {
+                    btnEdge.classList.remove('resting-btn');
+                    btnEdge.textContent = '🔴 边缘 ';
+                    // 重新追加计数
+                    const countSpan = btnEdge.querySelector('.edge-count');
+                    if (countSpan) countSpan.textContent = LRE.edgeCount;
+                }
+
+                edgeCount.textContent = LRE.edgeCount;
+                dataEdge.textContent = LRE.edgeCount;
+                const meta = MODE_META[LRE.mode] || { label: '固定', icon: '🔊' };
+                currentModeDisplay.textContent = meta.label;
+                currentModeDisplay.classList.remove('resting');
+
+                if (isRunning) {
+                    const mins = Math.floor(LRE.elapsed / 60);
+                    const secs = Math.floor(LRE.elapsed % 60);
+                    dataTime.textContent = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+                    dataMax.textContent = LRE.maxBpm > 0 ? Math.round(LRE.maxBpm) : '—';
+                    dataAvg.textContent = LRE.bpmCount > 0 ? Math.round(LRE.bpmSum / LRE.bpmCount) : '—';
+                }
+
+                // 休息进度条隐藏
+                restProgressWrap.classList.remove('show');
+                restProgressFill.style.width = '0%';
+                bpmRing.classList.remove('resting-ring');
+                beatProgressFill.classList.remove('resting-fill');
+            }
+
+            function updateProgress() {
+                if (!LRE.running || LRE.totalDuration <= 0) {
+                    progressFill.style.width = '0%';
+                    return;
+                }
+                const progress = Math.min(LRE.elapsed / LRE.totalDuration, 1);
+                const remain = Math.max(0, LRE.totalDuration - LRE.elapsed);
+                const mins = Math.floor(remain / 60);
+                const secs = Math.floor(remain % 60);
+                timeRemain.textContent = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+                timeLabel.textContent =
+                    `${String(Math.floor(LRE.elapsed/60)).padStart(2,'0')}:${String(Math.floor(LRE.elapsed%60)).padStart(2,'0')}`;
+                progressFill.style.width = (progress * 100) + '%';
+                progressFill.classList.remove('warning', 'danger', 'resting-progress');
+                if (LRE.resting) {
+                    progressFill.classList.add('resting-progress');
+                }
+                if (progress > 0.7) progressFill.classList.add('danger');
+                else if (progress > 0.4) progressFill.classList.add('warning');
+                if (remain <= 0 && LRE.running) stopEngine();
+            }
+
+            // =========================================================================
+            //  十一、引擎控制 (增强)
+            // =========================================================================
+            function doTick() {
+                if (!LRE.running || LRE.resting) return;
+                const now = performance.now();
+                currentStrategy.update(LRE, now);
+                triggerBeat();
+                updateUI();
+                if (LRE.totalDuration > 0 && LRE.elapsed >= LRE.totalDuration) {
+                    stopEngine();
+                }
+            }
+
+            function scheduleTick() {
+                if (!LRE.running || LRE.resting) return;
+                const interval = 60000 / Math.max(LRE.bpm, 10);
+                LRE.tickTimer = setTimeout(() => {
+                    doTick();
+                    scheduleTick();
+                }, interval);
+            }
+
+            function startEngine() {
+                if (LRE.running || LRE.countdownActive) return;
+                if (!LRE.bpm || LRE.bpm < 10) { LRE.bpm = 120;
+                    LRE.targetBpm = 120; }
+                gatherParams();
+                LRE.totalDuration = currentStrategy.getDuration(LRE) || 600;
+                if (LRE.totalDuration <= 0) LRE.totalDuration = 600;
+                LRE.edgeCount = 0;
+                LRE.elapsed = 0;
+                LRE.maxBpm = LRE.bpm;
+                LRE.bpmSum = 0;
+                LRE.bpmCount = 0;
+                LRE.energy = 0;
+                LRE.energyTarget = 0;
+                LRE.momentum = 0;
+                LRE.canvasGlow = 0;
+                LRE.canvasGlowTarget = 0;
+                LRE.dom.beatWidth = 0;
+                LRE.dom.bgFlash = 0;
+                LRE.dom._heroBeatBoost = 0;
+                LRE.dom._heroYBoost = 0;
+                LRE.dom._heroShadowBoost = 0;
+                LRE.dom._bpmScaleBoost = 0;
+                LRE.dom._bpmGlowBoost = 0;
+                LRE.dom._headBoost = 0;
+                LRE.resting = false;
+                LRE.restPhase = null;
+                LRE.restProgress = 0;
+                restProgressWrap.classList.remove('show');
+                restProgressFill.style.width = '0%';
+                btnEdge.classList.remove('resting-btn');
+                btnEdge.textContent = '🔴 边缘 ';
+                app.classList.remove('resting-active');
+
+                for (const p of LRE.pulses) { p.active = false;
+                    p.alpha = 0;
+                    p.scale = 1;
+                    p.blur = 0; }
+                beatProgressFill.style.width = '0%';
+                LRE.countdownActive = true;
+                let count = 3;
+                countdownOverlay.textContent = count;
+                countdownOverlay.classList.add('show');
+                playClick();
+                const cdInterval = setInterval(() => {
+                    count--;
+                    if (count > 0) {
+                        countdownOverlay.textContent = count;
+                        playClick();
+                    } else {
+                        clearInterval(cdInterval);
+                        countdownOverlay.classList.remove('show');
+                        LRE.countdownActive = false;
+                        LRE.running = true;
+                        currentStrategy.init(LRE);
+                        LRE.lastBeatTime = performance.now();
+                        updateUI();
+                        if (LRE.progressTimer) clearInterval(LRE.progressTimer);
+                        LRE.progressTimer = setInterval(() => {
+                            if (LRE.running && !LRE.resting) { LRE.elapsed += 0.1;
+                                updateProgress(); } else if (LRE.running && LRE.resting) { LRE.elapsed +=
+                                0.1;
+                                updateProgress(); }
+                        }, 100);
+                        if (LRE.dataTimer) clearInterval(LRE.dataTimer);
+                        LRE.dataTimer = setInterval(() => {
+                            if (LRE.running) updateUI();
+                        }, 1000);
+                        doTick();
+                        scheduleTick();
+                        if (!LRE.animRunning) {
+                            LRE.animRunning = true;
+                            LRE._lastUpdate = performance.now();
+                            loop();
+                        }
+                    }
+                }, 700);
+            }
+
+            function stopEngine() {
+                LRE.running = false;
+                if (LRE.tickTimer) { clearTimeout(LRE.tickTimer);
+                    LRE.tickTimer = null; }
+                if (LRE.progressTimer) { clearInterval(LRE.progressTimer);
+                    LRE.progressTimer = null; }
+                if (LRE.dataTimer) { clearInterval(LRE.dataTimer);
+                    LRE.dataTimer = null; }
+                LRE.resting = false;
+                LRE.restPhase = null;
+                restProgressWrap.classList.remove('show');
+                restProgressFill.style.width = '0%';
+                btnEdge.classList.remove('resting-btn');
+                btnEdge.textContent = '🔴 边缘 ';
+                app.classList.remove('resting-active');
+                beatProgressFill.style.width = '0%';
+                app.style.borderColor = 'var(--surface-border)';
+                app.style.boxShadow = 'var(--shadow-lg)';
+                updateUI();
+                app.classList.remove('immersive');
+                progressFill.style.width = '0%';
+                progressFill.classList.remove('warning', 'danger', 'resting-progress');
+                timeRemain.textContent = '—';
+                timeLabel.textContent = '00:00';
+                preSign.className = 'pre-sign';
+                preSign.textContent = '—';
+                btnStart.style.transform = 'scale(1)';
+                LRE.dom.beatWidth = 0;
+                LRE.dom.bgFlash = 0;
+                LRE.dom._heroBeatBoost = 0;
+                LRE.dom._heroYBoost = 0;
+                LRE.dom._heroShadowBoost = 0;
+                LRE.dom._bpmScaleBoost = 0;
+                LRE.dom._bpmGlowBoost = 0;
+                LRE.dom._headBoost = 0;
+                LRE.energy = 0;
+                LRE.energyTarget = 0;
+                LRE.momentum = 0;
+                LRE.core.radius = 0;
+                LRE.core.alpha = 0;
+                LRE.core.glow = 0;
+                LRE.canvasGlow = 0;
+                LRE.canvasGlowTarget = 0;
+                for (const p of LRE.pulses) { p.active = false;
+                    p.alpha = 0;
+                    p.scale = 1;
+                    p.blur = 0; }
+                applyDOM();
+                renderPulse();
+                bpmBig.classList.remove('resting-color');
+                bpmRing.classList.remove('resting-ring');
+                beatProgressFill.classList.remove('resting-fill');
+                restIcon.classList.remove('show');
+                bpmModeLabel.classList.remove('resting-label');
+                statusDot.className = 'dot';
+                statusLabel.classList.remove('resting-label');
+                currentModeDisplay.classList.remove('resting');
+                // 恢复边缘按钮计数显示
+                const countSpan = btnEdge.querySelector('.edge-count');
+                if (countSpan) countSpan.textContent = LRE.edgeCount;
+            }
+
+            function resetEngine() {
+                // 如果处于休息状态，先退出
+                if (LRE.resting) {
+                    LRE.resting = false;
+                    LRE.restPhase = null;
+                    restProgressWrap.classList.remove('show');
+                    restProgressFill.style.width = '0%';
+                    btnEdge.classList.remove('resting-btn');
+                    btnEdge.textContent = '🔴 边缘 ';
+                    app.classList.remove('resting-active');
+                    bpmBig.classList.remove('resting-color');
+                    bpmRing.classList.remove('resting-ring');
+                    beatProgressFill.classList.remove('resting-fill');
+                    restIcon.classList.remove('show');
+                    bpmModeLabel.classList.remove('resting-label');
+                    statusDot.className = 'dot';
+                    statusLabel.classList.remove('resting-label');
+                    currentModeDisplay.classList.remove('resting');
+                }
+                stopEngine();
+                LRE.bpm = LRE.targetBpm || 120;
+                LRE.edgeCount = 0;
+                LRE.elapsed = 0;
+                LRE.maxBpm = 0;
+                LRE.bpmSum = 0;
+                LRE.bpmCount = 0;
+                LRE.strategyState = {};
+                LRE.canvasGlow = 0;
+                LRE.canvasGlowTarget = 0;
+                LRE.restOriginalBpm = 120;
+                LRE.restCurrentBpm = 120;
+                LRE.restProgress = 0;
+                for (const p of LRE.pulses) { p.active = false;
+                    p.alpha = 0;
+                    p.scale = 1;
+                    p.blur = 0; }
+                LRE.core.radius = 0;
+                LRE.core.alpha = 0;
+                LRE.core.glow = 0;
+                timeLabel.textContent = '00:00';
+                timeRemain.textContent = '—';
+                progressFill.style.width = '0%';
+                progressFill.classList.remove('warning', 'danger', 'resting-progress');
+                beatProgressFill.style.width = '0%';
+                app.style.borderColor = 'var(--surface-border)';
+                app.style.boxShadow = 'var(--shadow-lg)';
+                renderPulse();
+                updateUI();
+                gatherParams();
+                dataEdge.textContent = '0';
+                dataTime.textContent = '00:00';
+                dataMax.textContent = '—';
+                dataAvg.textContent = '—';
+                preSign.className = 'pre-sign';
+                preSign.textContent = '—';
+                statusDot.className = 'dot';
+                statusLabel.textContent = '待机';
+                LRE.dom.beatWidth = 0;
+                LRE.dom.bgFlash = 0;
+                LRE.dom._heroBeatBoost = 0;
+                LRE.dom._heroYBoost = 0;
+                LRE.dom._heroShadowBoost = 0;
+                LRE.dom._bpmScaleBoost = 0;
+                LRE.dom._bpmGlowBoost = 0;
+                LRE.dom._headBoost = 0;
+                LRE.energy = 0;
+                LRE.energyTarget = 0;
+                LRE.momentum = 0;
+                applyDOM();
+                btnStart.style.transform = 'scale(1)';
+                bpmBig.style.transform = 'scale(1)';
+                bpmBig.style.textShadow = 'none';
+                bpmHero.style.transform = 'scale(1)';
+                bpmHero.style.boxShadow = 'var(--shadow)';
+                app.style.background = 'var(--surface)';
+                beatProgressFill.style.boxShadow = '0 0 18px rgba(124,58,237,0.15)';
+                bpmBig.classList.remove('resting-color');
+                bpmRing.classList.remove('resting-ring');
+                beatProgressFill.classList.remove('resting-fill');
+                restIcon.classList.remove('show');
+                bpmModeLabel.classList.remove('resting-label');
+                statusDot.className = 'dot';
+                statusLabel.classList.remove('resting-label');
+                currentModeDisplay.classList.remove('resting');
+                restProgressWrap.classList.remove('show');
+                restProgressFill.style.width = '0%';
+                btnEdge.classList.remove('resting-btn');
+                btnEdge.textContent = '🔴 边缘 ';
+                const countSpan = btnEdge.querySelector('.edge-count');
+                if (countSpan) countSpan.textContent = '0';
+                edgeCount.textContent = '0';
+                app.classList.remove('resting-active');
+                LRE.resting = false;
+                LRE.restPhase = null;
+            }
+
+            function loop() {
+                if (!LRE.animRunning) return;
+                const now = performance.now();
+                updateLRE(now);
+                LRE.rafId = requestAnimationFrame(loop);
+            }
+
+            // =========================================================================
+            //  十二、模式切换 & 参数
+            // =========================================================================
+            function switchMode(mode) {
+                if (LRE.running) stopEngine();
+                // 如果处于休息状态，强制退出
+                if (LRE.resting) {
+                    LRE.resting = false;
+                    LRE.restPhase = null;
+                    restProgressWrap.classList.remove('show');
+                    restProgressFill.style.width = '0%';
+                    btnEdge.classList.remove('resting-btn');
+                    btnEdge.textContent = '🔴 边缘 ';
+                    app.classList.remove('resting-active');
+                    bpmBig.classList.remove('resting-color');
+                    bpmRing.classList.remove('resting-ring');
+                    beatProgressFill.classList.remove('resting-fill');
+                    restIcon.classList.remove('show');
+                    bpmModeLabel.classList.remove('resting-label');
+                    statusDot.className = 'dot';
+                    statusLabel.classList.remove('resting-label');
+                    currentModeDisplay.classList.remove('resting');
+                }
+                LRE.mode = mode;
+                LRE.params = {};
+                LRE.strategyState = {};
+                const factory = modeFactory[mode];
+                currentStrategy = factory ? factory() : new FixedMode();
+                const defs = getParamDefs(mode);
+                defs.forEach(d => {
+                    if (d.id === 'bpm') LRE.bpm = d.default;
+                    if (d.id === 'startBpm') LRE.bpm = d.default;
+                    if (d.id === 'safeBpm') LRE.bpm = d.default;
+                    if (d.id === 'minBpm') {
+                        const maxD = defs.find(x => x.id === 'maxBpm');
+                        LRE.bpm = Math.round((d.default + (maxD ? maxD.default : 200)) / 2);
+                    }
+                    if (d.id === 'duration') LRE.totalDuration = d.default * 60;
+                });
+                LRE.targetBpm = LRE.bpm;
+                currentStrategy.init(LRE);
+                const meta = MODE_META[mode] || { label: '固定', icon: '⩩' };
+                currentModeDisplay.textContent = meta.label;
+                updateUI();
+                renderPulse();
+                beatProgressFill.style.width = '0%';
+                timeLabel.textContent = '00:00';
+                timeRemain.textContent = '—';
+                progressFill.style.width = '0%';
+                progressFill.classList.remove('warning', 'danger', 'resting-progress');
+                dataEdge.textContent = '0';
+                dataTime.textContent = '00:00';
+                dataMax.textContent = '—';
+                dataAvg.textContent = '—';
+                preSign.className = 'pre-sign';
+                preSign.textContent = '—';
+                statusDot.className = 'dot';
+                statusLabel.textContent = '待机';
+                LRE.dom.beatWidth = 0;
+                LRE.dom.bgFlash = 0;
+                LRE.dom._heroBeatBoost = 0;
+                LRE.dom._heroYBoost = 0;
+                LRE.dom._heroShadowBoost = 0;
+                LRE.dom._bpmScaleBoost = 0;
+                LRE.dom._bpmGlowBoost = 0;
+                LRE.dom._headBoost = 0;
+                LRE.energy = 0;
+                LRE.energyTarget = 0;
+                LRE.momentum = 0;
+                LRE.core.radius = 0;
+                LRE.core.alpha = 0;
+                LRE.core.glow = 0;
+                LRE.canvasGlow = 0;
+                LRE.canvasGlowTarget = 0;
+                LRE.restOriginalBpm = 120;
+                LRE.restCurrentBpm = 120;
+                LRE.restProgress = 0;
+                LRE.resting = false;
+                LRE.restPhase = null;
+                restProgressWrap.classList.remove('show');
+                restProgressFill.style.width = '0%';
+                btnEdge.classList.remove('resting-btn');
+                btnEdge.textContent = '🔴 边缘 ';
+                app.classList.remove('resting-active');
+                bpmBig.classList.remove('resting-color');
+                bpmRing.classList.remove('resting-ring');
+                beatProgressFill.classList.remove('resting-fill');
+                restIcon.classList.remove('show');
+                bpmModeLabel.classList.remove('resting-label');
+                statusDot.className = 'dot';
+                statusLabel.classList.remove('resting-label');
+                currentModeDisplay.classList.remove('resting');
+                applyDOM();
+                btnStart.style.transform = 'scale(1)';
+                bpmBig.style.transform = 'scale(1)';
+                bpmBig.style.textShadow = 'none';
+                bpmHero.style.transform = 'scale(1)';
+                bpmHero.style.boxShadow = 'var(--shadow)';
+                app.style.background = 'var(--surface)';
+                beatProgressFill.style.boxShadow = '0 0 18px rgba(124,58,237,0.15)';
+                document.querySelectorAll('.mode-list-item').forEach(el => {
+                    el.classList.toggle('active', el.dataset.mode === mode);
+                });
+                closeModalMode();
+                showToast(`${meta.icon} 切换至 ${meta.label}模式`, '节奏模式已更新');
+            }
+
+            // =========================================================================
+            //  十三、模态窗口控制
+            // =========================================================================
+            function openModalMode() {
+                modalMode.classList.add('open');
+            }
+
+            function closeModalMode() {
+                modalMode.classList.remove('open');
+            }
+
+            function openModalParams() {
+                renderParamsModal(LRE.mode);
+                const meta = MODE_META[LRE.mode] || { label: '固定', icon: '🔊' };
+                paramsModalTitle.textContent = `⚙ 高级参数 · ${meta.label}`;
+                modalParams.classList.add('open');
+            }
+
+            function closeModalParams() {
+                modalParams.classList.remove('open');
+            }
+
+            // =========================================================================
+            //  十四、Toast
+            // =========================================================================
+            let toastTimer = null;
+
+            function showToast(text, sub) {
+                toastText.textContent = text;
+                toastSub.textContent = sub || '';
+                toastFloat.classList.add('show');
+                if (toastTimer) clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => {
+                    toastFloat.classList.remove('show');
+                    toastTimer = null;
+                }, 3000);
+            }
+
+            // =========================================================================
+            //  十五、参数渲染
+            // =========================================================================
+            function renderBpmTagsModal(container, list) {
+                container.innerHTML = '';
+                list.forEach((bpm, idx) => {
+                    const tag = document.createElement('span');
+                    tag.className = 'bpm-tag';
+                    tag.innerHTML =
+                        `${bpm} <span class="del" data-idx="${idx}">✕</span>`;
+                    tag.querySelector('.del').addEventListener('click', function() {
+                        const i = parseInt(this.dataset.idx);
+                        const current = LRE.params.bpmList || [];
+                        current.splice(i, 1);
+                        LRE.params.bpmList = current;
+                        renderBpmTagsModal(container, current);
+                        LRE.strategyState = {};
+                    });
+                    container.appendChild(tag);
+                });
+                if (list.length === 0) {
+                    const empty = document.createElement('span');
+                    empty.style.color = 'var(--text-muted)';
+                    empty.style.fontSize = '0.5rem';
+                    empty.textContent = '添加 BPM';
+                    container.appendChild(empty);
+                }
+            }
+
+            function renderParamsModal(mode) {
+                const defs = getParamDefs(mode);
+                paramsGridModal.innerHTML = '';
+                defs.forEach(def => {
+                    if (!(def.id in LRE.params)) {
+                        if (def.type === 'bpmList') {
+                            LRE.params[def.id] = [...(def.default || [])];
+                        } else {
+                            LRE.params[def.id] = def.default;
+                        }
+                    }
+                });
+
+                defs.forEach(def => {
+                    const div = document.createElement('div');
+                    div.className = 'param-group';
+                    const label = document.createElement('label');
+                    label.textContent = def.label;
+                    div.appendChild(label);
+
+                    if (def.type === 'range') {
+                        const valSpan = document.createElement('span');
+                        valSpan.className = 'param-value';
+                        valSpan.textContent = LRE.params[def.id] ?? def.default;
+                        label.appendChild(valSpan);
+                        const input = document.createElement('input');
+                        input.type = 'range';
+                        input.min = def.min;
+                        input.max = def.max;
+                        input.step = def.step || 1;
+                        input.value = LRE.params[def.id] ?? def.default;
+                        input.dataset.paramId = def.id;
+                        input.addEventListener('input', function() {
+                            const v = parseFloat(this.value);
+                            valSpan.textContent = v;
+                            LRE.params[def.id] = v;
+                        });
+                        div.appendChild(input);
+                        const labels = document.createElement('div');
+                        labels.className = 'range-labels';
+                        labels.innerHTML = `<span>${def.min}</span><span>${def.max}</span>`;
+                        div.appendChild(labels);
+
+                    } else if (def.type === 'number') {
+                        const input = document.createElement('input');
+                        input.type = 'number';
+                        input.min = def.min;
+                        input.max = def.max;
+                        input.step = def.step || 1;
+                        input.value = LRE.params[def.id] ?? def.default;
+                        input.dataset.paramId = def.id;
+                        input.addEventListener('change', function() {
+                            let v = parseFloat(this.value) || def.default;
+                            if (def.min !== undefined) v = Math.max(v, def.min);
+                            if (def.max !== undefined) v = Math.min(v, def.max);
+                            this.value = v;
+                            LRE.params[def.id] = v;
+                        });
+                        div.appendChild(input);
+
+                    } else if (def.type === 'radio') {
+                        const group = document.createElement('div');
+                        group.className = 'radio-group';
+                        const current = LRE.params[def.id] ?? def.default;
+                        def.options.forEach(opt => {
+                            const btn = document.createElement('span');
+                            btn.className = 'radio-opt' + (opt === current ? ' active' : '');
+                            btn.textContent = opt;
+                            btn.dataset.value = opt;
+                            btn.addEventListener('click', function() {
+                                group.querySelectorAll('.radio-opt').forEach(b => b.classList.remove(
+                                    'active'));
+                                this.classList.add('active');
+                                LRE.params[def.id] = this.dataset.value;
+                            });
+                            group.appendChild(btn);
+                        });
+                        div.appendChild(group);
+
+                    } else if (def.type === 'bpmList') {
+                        const container = document.createElement('div');
+                        container.className = 'bpm-list';
+                        const addRow = document.createElement('div');
+                        addRow.className = 'add-bpm-row';
+                        const addInput = document.createElement('input');
+                        addInput.type = 'number';
+                        addInput.min = 30;
+                        addInput.max = 250;
+                        addInput.placeholder = 'BPM';
+                        addInput.value = 120;
+                        const addBtn = document.createElement('button');
+                        addBtn.className = 'btn-sm';
+                        addBtn.textContent = '+';
+                        addBtn.addEventListener('click', function() {
+                            const val = parseInt(addInput.value);
+                            if (isNaN(val) || val < 30 || val > 250) return;
+                            const list = LRE.params[def.id] || [];
+                            list.push(val);
+                            LRE.params[def.id] = list;
+                            renderBpmTagsModal(container, list);
+                            addInput.value = '';
+                            LRE.strategyState = {};
+                        });
+                        addRow.appendChild(addInput);
+                        addRow.appendChild(addBtn);
+                        div.appendChild(container);
+                        div.appendChild(addRow);
+                        const list = LRE.params[def.id] || [...(def.default || [])];
+                        renderBpmTagsModal(container, list);
+                        addInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') addBtn.click(); });
+
+                    } else if (def.type === 'waveform') {
+                        const group = document.createElement('div');
+                        group.className = 'waveform-btns';
+                        const current = LRE.params[def.id] ?? def.default;
+                        def.options.forEach(opt => {
+                            const btn = document.createElement('button');
+                            btn.className = 'wf-btn' + (opt === current ? ' active' : '');
+                            btn.textContent = opt;
+                            btn.dataset.value = opt;
+                            btn.addEventListener('click', function() {
+                                group.querySelectorAll('.wf-btn').forEach(b => b.classList.remove(
+                                    'active'));
+                                this.classList.add('active');
+                                LRE.params[def.id] = this.dataset.value;
+                            });
+                            group.appendChild(btn);
+                        });
+                        div.appendChild(group);
+                    }
+                    paramsGridModal.appendChild(div);
+                });
+            }
+
+            function gatherParams() {
+                const mode = LRE.mode;
+                const defs = getParamDefs(mode);
+                defs.forEach(def => {
+                    if (def.type === 'bpmList') {} else if (def.type === 'range' || def.type === 'number') {} else if (
+                        def.type === 'radio') {} else if (def.type === 'waveform') {}
+                    if (def.id === 'duration' && LRE.params.duration) {
+                        LRE.totalDuration = LRE.params.duration * 60;
+                    }
+                });
+                if (mode === MODES.FIXED) {
+                    LRE.bpm = LRE.params.bpm || 120;
+                    LRE.targetBpm = LRE.bpm;
+                } else if (mode === MODES.VARIATION) {
+                    const list = LRE.params.bpmList || [];
+                    if (list.length > 0) { LRE.bpm = list[0];
+                        LRE.targetBpm = list[0];
+                        LRE.strategyState = {}; }
+                } else if (mode === MODES.COOLDOWN) {
+                    LRE.bpm = LRE.params.startBpm || 180;
+                    LRE.targetBpm = LRE.bpm;
+                    LRE.strategyState = {};
+                } else if (mode === MODES.HEATUP) {
+                    LRE.bpm = LRE.params.startBpm || 60;
+                    LRE.targetBpm = LRE.bpm;
+                    LRE.strategyState = {};
+                } else if (mode === MODES.RANDOM) {
+                    const minB = LRE.params.minBpm || 60,
+                        maxB = LRE.params.maxBpm || 200;
+                    LRE.bpm = Math.round((minB + maxB) / 2);
+                    LRE.targetBpm = LRE.bpm;
+                    LRE.strategyState = {};
+                } else if (mode === MODES.WAVE) {
+                    const minB = LRE.params.minBpm || 60,
+                        maxB = LRE.params.maxBpm || 200;
+                    LRE.bpm = Math.round((minB + maxB) / 2);
+                    LRE.targetBpm = LRE.bpm;
+                    LRE.strategyState = { time: 0 };
+                } else if (mode === MODES.CHASE) {
+                    LRE.bpm = LRE.params.safeBpm || 90;
+                    LRE.targetBpm = LRE.bpm;
+                    LRE.strategyState = {};
+                }
+                currentStrategy.init(LRE);
+                updateUI();
+                renderPulse();
+            }
+
+            // =========================================================================
+            //  十六、生成模式列表
+            // =========================================================================
+            function renderModeList() {
+                modeList.innerHTML = '';
+                const modes = [
+                    { id: 'fixed', label: '固定', icon: '🎯' },
+                    { id: 'variation', label: '变奏', icon: '🌊' },
+                    { id: 'cooldown', label: '渐冻', icon: '❄️' },
+                    { id: 'heatup', label: '渐热', icon: '🔥' },
+                    { id: 'random', label: '随机', icon: '🎲' },
+                    { id: 'wave', label: '波浪', icon: '〰️' },
+                    { id: 'chase', label: '追逃', icon: '🏹' }
+                ];
+                modes.forEach(m => {
+                    const item = document.createElement('div');
+                    item.className = 'mode-list-item' + (m.id === LRE.mode ? ' active' : '');
+                    item.dataset.mode = m.id;
+                    item.innerHTML = `
+                        <span><span class="mode-icon">${m.icon}</span><span class="mode-label">${m.label}</span></span>
+                        <span class="mode-check">✓</span>
+                    `;
+                    item.addEventListener('click', function() {
+                        const modeId = this.dataset.mode;
+                        if (modeId !== LRE.mode) {
+                            switchMode(modeId);
+                        } else {
+                            closeModalMode();
+                        }
+                    });
+                    modeList.appendChild(item);
+                });
+            }
+
+            // =========================================================================
+            //  十七、事件绑定 (增强)
+            // =========================================================================
+            btnModeSwitch.addEventListener('click', openModalMode);
+            modalModeClose.addEventListener('click', closeModalMode);
+            modalMode.addEventListener('click', function(e) {
+                if (e.target === this) closeModalMode();
+            });
+
+            btnParams.addEventListener('click', openModalParams);
+            modalParamsClose.addEventListener('click', closeModalParams);
+            modalParams.addEventListener('click', function(e) {
+                if (e.target === this) closeModalParams();
+            });
+            paramsCancel.addEventListener('click', closeModalParams);
+            paramsConfirm.addEventListener('click', function() {
+                gatherParams();
+                const meta = MODE_META[LRE.mode] || { label: '固定', icon: '(づ￣ 3￣)づ' };
+                currentModeDisplay.textContent = meta.label;
+                updateUI();
+                renderPulse();
+                closeModalParams();
+                showToast(`✅ 参数已生效`, `${meta.label}模式设置已更新`);
+            });
+
+            // ---- 边缘按钮：触发休息 ----
+            btnEdge.addEventListener('click', function() {
+                if (!LRE.running) {
+                    showToast('⏸ 请先开始节奏', '点击「开始」再使用边缘休息');
+                    return;
+                }
+                if (LRE.resting) {
+                    showToast('🧘 已在休息中', `剩余 ${Math.round((1 - LRE.restProgress) * 25)} 秒`);
+                    return;
+                }
+                // 进入休息状态
+                enterRestState();
+            });
+
+            // ---- 开始/停止 ----
+            btnStart.addEventListener('click', function() {
+                if (LRE.running) {
+                    // 如果正在休息，停止时先退出休息
+                    if (LRE.resting) {
+                        LRE.resting = false;
+                        LRE.restPhase = null;
+                        restProgressWrap.classList.remove('show');
+                        restProgressFill.style.width = '0%';
+                        btnEdge.classList.remove('resting-btn');
+                        btnEdge.textContent = '🔴 边缘 ';
+                        app.classList.remove('resting-active');
+                        bpmBig.classList.remove('resting-color');
+                        bpmRing.classList.remove('resting-ring');
+                        beatProgressFill.classList.remove('resting-fill');
+                        restIcon.classList.remove('show');
+                        bpmModeLabel.classList.remove('resting-label');
+                        statusDot.className = 'dot';
+                        statusLabel.classList.remove('resting-label');
+                        currentModeDisplay.classList.remove('resting');
+                    }
+                    stopEngine();
+                } else {
+                    startEngine();
+                }
+            });
+
+            btnReset.addEventListener('click', function() {
+                resetEngine();
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === ' ' || e.key === 'Space') {
+                    e.preventDefault();
+                    btnStart.click();
+                }
+                if (e.key === 'e' || e.key === 'E') {
+                    if (LRE.running) btnEdge.click();
+                }
+                if (e.key === 'Escape') {
+                    if (modalMode.classList.contains('open')) closeModalMode();
+                    if (modalParams.classList.contains('open')) closeModalParams();
+                }
+            });
+
+            document.addEventListener('click', function(e) {
+                if (modalMode.classList.contains('open') && !modalMode.querySelector('.modal-card').contains(e
+                    .target) && !btnModeSwitch.contains(e.target)) {
+                    closeModalMode();
+                }
+            });
+
+            // =========================================================================
+            //  十八、初始化
+            // =========================================================================
+            function init() {
+                renderModeList();
+                switchMode(MODES.FIXED);
+                resizePulse();
+                const ro = new ResizeObserver(() => resizePulse());
+                ro.observe(pulseCanvas);
+                renderPulse();
+                updateUI();
+                LRE.totalDuration = 600;
+                updateProgress();
+                LRE.animRunning = true;
+                LRE._lastUpdate = performance.now();
+                LRE.dom.ambientPhase = Math.random() * 100;
+                loop();
+                btnStart.style.transform = 'scale(1)';
+                bpmHero.style.transform = 'scale(1)';
+                bpmHero.style.boxShadow = 'var(--shadow)';
+                // 初始化边缘按钮计数
+                const countSpan = btnEdge.querySelector('.edge-count');
+                if (countSpan) countSpan.textContent = '0';
+                edgeCount.textContent = '0';
+                setTimeout(() => {
+                    showToast('🎵 节奏边缘 · 休息增强', '点击「边缘」按钮触发临时休息 (5s↓ + 15s停 + 5s↑)');
+                }, 600);
+            }
+
+            init();
+
+            window.__LRE = LRE;
+            window.__switchMode = switchMode;
+            window.__enterRest = enterRestState;
+
+        })();
+    </script>
+</body>
+</html>
